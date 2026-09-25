@@ -1,6 +1,8 @@
 const fruit = document.getElementById("fruit"); // Find the HTML element whose ID is "fruit" and give me access to it.
 const scoreDisplay = document.getElementById("score"); // Find the HTML element whose ID is "score"
+const missesDisplay = document.getElementById("misses"); // Find the HTML element whose ID is "misses"
 let score = 0; // Stores the player's current score
+let misses = 0; // Stores how many fruits the player has missed
 
 resetFruit(); // Put the fruit at a random starting position
 
@@ -13,7 +15,9 @@ setInterval(() => {
     fruit.style.top = parseInt(fruit.style.top) + 5 + "px"; // Move the fruit 5 pixels downward
     
     if (parseInt(fruit.style.top) >= 450) {
-        fruit.style.top = "0px"; // Reset the fruit to the top
+    misses = misses + 1; // Increase the missed-fruit count
+    missesDisplay.textContent = "Misses: " + misses; // Update the misses shown on the page
+    fruit.style.top = "0px"; // Reset the fruit to the top
     }
 
 }, 50); // Repeat every 50 milliseconds
