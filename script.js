@@ -1,8 +1,14 @@
 const fruit = document.getElementById("fruit"); // Find the HTML element whose ID is "fruit" and give me access to it.
 const scoreDisplay = document.getElementById("score"); // Find the HTML element whose ID is "score"
 const missesDisplay = document.getElementById("misses"); // Find the HTML element whose ID is "misses"
+const livesDisplay = document.getElementById("lives");
+const gameOverScreen = document.getElementById("game-over");
+const restartButton = document.getElementById("restart-button");
+
 let score = 0; // Stores the player's current score
 let misses = 0; // Stores how many fruits the player has missed
+let lives = 4;
+let gameRunning = true;
 
 resetFruit(); // Put the fruit at a random starting position
 
@@ -12,11 +18,25 @@ function resetFruit() {
 }
 
 setInterval(() => {
+
+    if (!gameRunning) {
+        return;
+    }
+    
     fruit.style.top = parseInt(fruit.style.top) + 5 + "px"; // Move the fruit 5 pixels downward
     
     if (parseInt(fruit.style.top) >= 450) {
     misses = misses + 1; // Increase the missed-fruit count
     missesDisplay.textContent = "Misses: " + misses; // Update the misses shown on the page
+    
+    lives = lives - 1;
+    livesDisplay.textContent = "Lives: " + "❤️".repeat(lives);
+    
+    if (lives <= 0) {
+        gameRunning = false;
+        gameOverScreen.style.display = "block";
+    }
+
     fruit.style.top = "0px"; // Reset the fruit to the top
     }
 
@@ -33,3 +53,18 @@ fruit.addEventListener("click", () => {
 
 
 }); // Detect when the player clicks the fruit
+
+restartButton.addEventListener("click", () => {
+    lives = 4;
+    misses = 0;
+    score = 0;
+    gameRunning = true;
+
+    livesDisplay.textContent = "Lives: ❤️❤️❤️❤️";
+    missesDisplay.textContent = "Misses: 0";
+    scoreDisplay.textContent = "Score: 0";
+
+    gameOverScreen.style.display = "none";
+
+    resetFruit();
+});

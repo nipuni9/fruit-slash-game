@@ -12,3 +12,6 @@ body {
     left: 300px;
     top: 200px;
 }
+#game-over {
+    display: none;
+}
