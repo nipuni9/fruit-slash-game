@@ -39,7 +39,7 @@ setInterval(() => {
         misses = misses + 1; // Increase the missed-fruit count
         missesDisplay.textContent = "Misses: " + misses; // Update the misses display
 
-        lives = lives - 1; // Remove one life
+        lives = Math.max(0, lives - 1); // Remove one life
         livesDisplay.textContent = "Lives: " + "❤️".repeat(lives); // Update the lives display
 
         if (lives <= 0) {
