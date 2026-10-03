@@ -56,6 +56,7 @@ function resetBomb(shouldSpawn = false) {
     }
 }
 
+
 function showLevelPassed() {
     if (levelPassed) return;
 
@@ -64,13 +65,90 @@ function showLevelPassed() {
 
     const message = document.createElement("div");
     message.id = "level-passed";
-    message.textContent = "🎉 LEVEL 1 PASSED! 🎉";
+
+    const heading = document.createElement("h2");
+    heading.textContent = "🎉 LEVEL 1 PASSED! 🎉";
+
+    const replayButton = document.createElement("button");
+    replayButton.textContent = "Replay Level 1";
+
+    const nextButton = document.createElement("button");
+    nextButton.textContent = "Next Level ➜";
+
+    message.appendChild(heading);
+    message.appendChild(replayButton);
+    message.appendChild(nextButton);
+
     gameArea.appendChild(message);
+
+    replayButton.addEventListener("click", restartLevel1);
+    nextButton.addEventListener("click", showLevel2Briefing);
 }
 
 function endGame() {
     gameRunning = false;
     gameOverScreen.style.display = "block";
+}
+
+
+function restartLevel1() {
+    score = 0;
+    misses = 0;
+    lives = 4;
+    fruitSpeed = 5;
+    gameRunning = true;
+    levelPassed = false;
+    fruitsSpawned = 0;
+    bombsSpawnedThisCycle = 0;
+
+    scoreDisplay.textContent = "Score: 0";
+    missesDisplay.textContent = "Misses: 0";
+    livesDisplay.textContent = "Lives: " + "❤️".repeat(lives);
+
+    fruit.classList.remove("fruit-hit");
+    fruit.style.display = "block";
+    bomb.style.display = "none";
+
+    const oldMessage = document.getElementById("level-passed");
+    if (oldMessage) oldMessage.remove();
+
+    gameOverScreen.style.display = "none";
+
+    resetFruit();
+}
+
+function showLevel2Briefing() {
+    const message = document.getElementById("level-passed");
+
+    message.innerHTML = `
+        <h2>⚔️ LEVEL 2</h2>
+        <p>Two fruits will fall at the same time!</p>
+        <p>⏱️ Catch enough fruits before time runs out.</p>
+        <p>❤️ You start with 3 hearts.</p>
+        <p>🏆 Beat the special record to earn an extra heart.</p>
+        <p>⚔️ Complete Level 2 in time to unlock Double Blade.</p>
+        <p><em>Are you ready?</em></p>
+        <button id="back-button">Back</button>
+        <button id="start-level2-button">Start Level 2 ➜</button>
+    `;
+
+    document.getElementById("back-button").addEventListener("click", () => {
+        message.remove();
+        showLevelPassed();
+    });
+
+    document.getElementById("start-level2-button").addEventListener("click", () => {
+        message.innerHTML = `
+            <h2>Level 2 is next!</h2>
+            <p>The briefing is ready. We'll add the timer and two-fruit gameplay next.</p>
+            <button id="back-to-level1">Back to Level 1</button>
+        `;
+
+        document.getElementById("back-to-level1").addEventListener("click", () => {
+            message.remove();
+            restartLevel1();
+        });
+    });
 }
 
 resetFruit();
@@ -167,28 +245,5 @@ bomb.addEventListener("click", () => {
     }, 300);
 });
 
-restartButton.addEventListener("click", () => {
-    score = 0;
-    misses = 0;
-    lives = 4;
-    fruitSpeed = 5;
-    gameRunning = true;
-    levelPassed = false;
-    fruitsSpawned = 0;
-    bombsSpawnedThisCycle = 0;
-
-    scoreDisplay.textContent = "Score: 0";
-    missesDisplay.textContent = "Misses: 0";
-    livesDisplay.textContent = "Lives: ❤️❤️❤️❤️";
-
-    fruit.classList.remove("fruit-hit");
-    fruit.style.display = "block";
-    bomb.style.display = "none";
-
-    const oldMessage = document.getElementById("level-passed");
-    if (oldMessage) oldMessage.remove();
-
-    gameOverScreen.style.display = "none";
-
-    resetFruit();
-});
+restartButton.addEventListener("click", restartLevel1);
+  
