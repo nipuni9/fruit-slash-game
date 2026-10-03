@@ -14,13 +14,14 @@ const hitSound = new AudioContext();
 let score = 0;
 let misses = 0;
 let lives = 4;
+let fruitSpeed = 5;
 let gameRunning = true;
 let levelPassed = false;
 let fruitsSpawned = 0;
 let bombsSpawnedThisCycle = 0;
 
 const targetScore = 100;
-const bombChance = 0.25;
+const bombChance = 0.10;
 
 function resetFruit() {
     fruit.textContent = fruits[Math.floor(Math.random() * fruits.length)];
@@ -87,7 +88,8 @@ setInterval(() => {
     }
 
     // Move the fruit downward.
-    fruit.style.top = parseInt(fruit.style.top) + 5 + "px";
+    const speed = 5 + Math.floor(score / 10);
+    fruit.style.top = parseInt(fruit.style.top) + speed + "px";
 
     if (parseInt(fruit.style.top) >= 450) {
         misses++;
@@ -111,6 +113,9 @@ fruit.addEventListener("click", () => {
 
     score++;
     scoreDisplay.textContent = "Score: " + score;
+    if (score % 10 === 0) {
+    fruitSpeed += 1;
+    }
 
     const points = document.createElement("div");
     points.textContent = "+1";
@@ -166,6 +171,7 @@ restartButton.addEventListener("click", () => {
     score = 0;
     misses = 0;
     lives = 4;
+    fruitSpeed = 5;
     gameRunning = true;
     levelPassed = false;
     fruitsSpawned = 0;
