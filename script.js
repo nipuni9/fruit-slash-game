@@ -88,7 +88,7 @@ setInterval(() => {
     }
 
     // Move the fruit downward.
-    const speed = 5 + Math.floor(score / 10);
+    const speed = 4 + Math.floor(score / 20);
     fruit.style.top = parseInt(fruit.style.top) + speed + "px";
 
     if (parseInt(fruit.style.top) >= 450) {
