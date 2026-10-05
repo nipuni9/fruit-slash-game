@@ -27,7 +27,7 @@ const bombChance = 0.10;
 
 function resetFruit() {
     fruit.textContent = fruits[Math.floor(Math.random() * fruits.length)];
-    fruit.style.left = Math.floor(Math.random() * 750) + "px";
+    fruit.style.left = Math.floor(Math.random() * 450) + "px";
     fruit.style.top = "0px";
 
     fruitsSpawned++;
@@ -185,6 +185,30 @@ setInterval(() => {
         }
     }
 }, 50);
+
+function createBloodEffect(x, y) {
+    for (let i = 0; i < 15; i++) {
+        const particle = document.createElement("div");
+
+        particle.classList.add("blood-particle");
+
+        particle.style.left = x + "px";
+        particle.style.top = y + "px";
+
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 30 + Math.random() * 50;
+
+        const moveX = Math.cos(angle) * distance;
+        const moveY = Math.sin(angle) * distance;
+
+        particle.style.setProperty("--move-x", moveX + "px");
+        particle.style.setProperty("--move-y", moveY + "px");
+
+        gameArea.appendChild(particle);
+
+        setTimeout(() => particle.remove(), 400);
+    }
+}
 
 fruit.addEventListener("click", () => {
     if (!gameRunning) return;
