@@ -6,9 +6,11 @@ const livesDisplay = document.getElementById("lives");
 const gameOverScreen = document.getElementById("game-over");
 const restartButton = document.getElementById("restart-button");
 const gameArea = document.getElementById("game-area");
+const crosshair = document.getElementById("crosshair");
 const bomb = document.getElementById("bomb");
+const newFruit = document.createElement("div");
 
-const fruits = ["🍎", "🍊", "🍌", "🍉", "🍓"];
+const fruits = ["👽"];
 const hitSound = new AudioContext();
 
 let score = 0;
@@ -247,3 +249,9 @@ bomb.addEventListener("click", () => {
 
 restartButton.addEventListener("click", restartLevel1);
   
+gameArea.addEventListener("mousemove", (event) => {
+    const rect = gameArea.getBoundingClientRect();
+
+    crosshair.style.left = (event.clientX - rect.left) + "px";
+    crosshair.style.top = (event.clientY - rect.top) + "px";
+});
