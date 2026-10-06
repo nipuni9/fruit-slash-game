@@ -14,7 +14,7 @@ body {
     position: absolute;
     left: 300px;
     top: 200px;
-    font-size: 35px;
+    font-size: 24px;
 }
 
 /* Fruit hit animation */
@@ -106,7 +106,7 @@ body {
 
 #bomb {
     position: absolute;
-    font-size: 35px;
+    font-size: 24px;
     cursor: pointer;
 }
 
@@ -266,3 +266,21 @@ body {
 #building span:nth-child(10) { left: 45px; top: 200px; }
 #building span:nth-child(11) { left: 100px; top: 200px; }
 #building span:nth-child(12) { left: 145px; top: 200px; }
+
+#building-back-1 {
+    position: absolute;
+    width: 100px;
+    height: 180px;
+    left: 30px;
+    bottom: 0;
+    background-color: #03070a;
+}
+
+#building-back-2 {
+    position: absolute;
+    width: 120px;
+    height: 220px;
+    right: 25px;
+    bottom: 0;
+    background-color: #05090c;
+}

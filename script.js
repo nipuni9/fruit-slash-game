@@ -8,7 +8,7 @@ const restartButton = document.getElementById("restart-button");
 const gameArea = document.getElementById("game-area");
 const crosshair = document.getElementById("crosshair");
 const bomb = document.getElementById("bomb");
-const newFruit = document.createElement("div");
+
 
 const fruits = ["👽"];
 const hitSound = new AudioContext();
@@ -170,6 +170,7 @@ setInterval(() => {
     // Move the fruit downward.
     const speed = 4 + Math.floor(score / 20);
     fruit.style.top = parseInt(fruit.style.top) + speed + "px";
+    
 
     if (parseInt(fruit.style.top) >= 450) {
         misses++;
