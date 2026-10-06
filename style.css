@@ -173,9 +173,11 @@ body {
 
 #crosshair {
     position: absolute;
+    left: 400px;
+    top: 250px;
+    transform: translate(-50%, -50%);
     color: red;
     pointer-events: none;
-    transform: translate(-50%, -50%);
 }
 
 #game-area {
@@ -220,15 +222,15 @@ body {
 }
 
 #scope-view {
-    width: 500px;
-    height: 500px;
+    width: 420px;
+    height: 420px;
     border-radius: 50%;
     background:
     linear-gradient(to bottom, #02050a 0%, #071b24 60%, #020305 100%);
     background-color: #071014;
     position: absolute;
-    top: 0;
-    left: 150px;
+    top: 40;
+    left: 190px;
     overflow: hidden;
 }
 
@@ -283,4 +285,10 @@ body {
     right: 25px;
     bottom: 0;
     background-color: #05090c;
+}
+
+#lives {
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
 }

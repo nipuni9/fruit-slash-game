@@ -1,4 +1,3 @@
-
 const fruit = document.getElementById("fruit");
 const scoreDisplay = document.getElementById("score");
 const missesDisplay = document.getElementById("misses");
@@ -8,7 +7,6 @@ const restartButton = document.getElementById("restart-button");
 const gameArea = document.getElementById("game-area");
 const crosshair = document.getElementById("crosshair");
 const bomb = document.getElementById("bomb");
-
 
 const fruits = ["👽"];
 const hitSound = new AudioContext();
@@ -24,16 +22,17 @@ let bombsSpawnedThisCycle = 0;
 
 const targetScore = 100;
 const bombChance = 0.10;
+const sensorRadius = 30;
+
 
 function resetFruit() {
     fruit.textContent = fruits[Math.floor(Math.random() * fruits.length)];
-    fruit.style.left = Math.floor(Math.random() * 450) + "px";
+    fruit.style.left = Math.floor(Math.random() * 396) + "px";
     fruit.style.top = "0px";
+    fruit.style.display = "block";
 
     fruitsSpawned++;
 
-    // Guarantee at least two bomb spawns per 50 fruits.
-    // The first two eligible spawns in each 50-fruit cycle are guaranteed.
     if (fruitsSpawned % 50 === 1) {
         bombsSpawnedThisCycle = 0;
     }
@@ -46,6 +45,7 @@ function resetFruit() {
         bomb.style.display = "none";
     }
 }
+
 
 function resetBomb(shouldSpawn = false) {
     bomb.style.display = "none";
@@ -87,6 +87,7 @@ function showLevelPassed() {
     nextButton.addEventListener("click", showLevel2Briefing);
 }
 
+
 function endGame() {
     gameRunning = false;
     gameOverScreen.style.display = "block";
@@ -109,15 +110,20 @@ function restartLevel1() {
 
     fruit.classList.remove("fruit-hit");
     fruit.style.display = "block";
+
     bomb.style.display = "none";
 
     const oldMessage = document.getElementById("level-passed");
-    if (oldMessage) oldMessage.remove();
+
+    if (oldMessage) {
+        oldMessage.remove();
+    }
 
     gameOverScreen.style.display = "none";
 
     resetFruit();
 }
+
 
 function showLevel2Briefing() {
     const message = document.getElementById("level-passed");
@@ -153,39 +159,6 @@ function showLevel2Briefing() {
     });
 }
 
-resetFruit();
-
-setInterval(() => {
-    if (!gameRunning) return;
-
-    // Move the bomb. Missing it has no penalty.
-    if (bomb.style.display !== "none") {
-        bomb.style.top = parseInt(bomb.style.top) + 4 + "px";
-
-        if (parseInt(bomb.style.top) >= 450) {
-            bomb.style.display = "none";
-        }
-    }
-
-    // Move the fruit downward.
-    const speed = 4 + Math.floor(score / 20);
-    fruit.style.top = parseInt(fruit.style.top) + speed + "px";
-    
-
-    if (parseInt(fruit.style.top) >= 450) {
-        misses++;
-        missesDisplay.textContent = "Misses: " + misses;
-
-        lives = Math.max(0, lives - 1);
-        livesDisplay.textContent = "Lives: " + "❤️".repeat(lives);
-
-        if (lives <= 0) {
-            endGame();
-        } else {
-            resetFruit();
-        }
-    }
-}, 50);
 
 function createBloodEffect(x, y) {
     for (let i = 0; i < 15; i++) {
@@ -211,59 +184,164 @@ function createBloodEffect(x, y) {
     }
 }
 
-fruit.addEventListener("click", () => {
+
+resetFruit();
+
+
+setInterval(() => {
     if (!gameRunning) return;
 
-    fruit.classList.add("fruit-hit");
+    if (bomb.style.display !== "none") {
+        bomb.style.top = parseInt(bomb.style.top) + 4 + "px";
 
-    score++;
-    scoreDisplay.textContent = "Score: " + score;
-    if (score % 10 === 0) {
-    fruitSpeed += 1;
+        if (parseInt(bomb.style.top) >= 450) {
+            bomb.style.display = "none";
+        }
     }
 
-    const points = document.createElement("div");
-    points.textContent = "+1";
-    points.classList.add("points-popup");
-    points.style.left = fruit.style.left;
-    points.style.top = fruit.style.top;
-    gameArea.appendChild(points);
+    const speed = 4 + Math.floor(score / 20);
 
-    setTimeout(() => points.remove(), 500);
+    fruit.style.top = parseInt(fruit.style.top) + speed + "px";
 
-    if (hitSound.state === "suspended") {
-        hitSound.resume();
-    }
+    if (parseInt(fruit.style.top) >= 450) {
+        misses++;
+        missesDisplay.textContent = "Misses: " + misses;
 
-    const oscillator = hitSound.createOscillator();
-    const gainNode = hitSound.createGain();
+        lives = Math.max(0, lives - 1);
+        livesDisplay.textContent = "Lives: " + "❤️".repeat(lives);
 
-    oscillator.frequency.value = 600;
-    gainNode.gain.value = 0.1;
-    oscillator.connect(gainNode);
-    gainNode.connect(hitSound.destination);
-    oscillator.start();
-    oscillator.stop(hitSound.currentTime + 0.1);
-
-    if (score >= targetScore) {
-        showLevelPassed();
-        return;
-    }
-
-    setTimeout(() => {
-        fruit.classList.remove("fruit-hit");
-
-        if (gameRunning) {
+        if (lives <= 0) {
+            endGame();
+        } else {
             resetFruit();
         }
-    }, 200);
+    }
+}, 50);
+
+
+// 🎯 Reticle movement
+let targetMouseX = 400;
+let targetMouseY = 250;
+
+let crosshairX = 400;
+let crosshairY = 250;
+
+gameArea.addEventListener("mousemove", (event) => {
+    const rect = gameArea.getBoundingClientRect();
+
+    targetMouseX = event.clientX - rect.left;
+    targetMouseY = event.clientY - rect.top;
 });
+
+function smoothCrosshair() {
+    crosshairX += (targetMouseX - crosshairX) * 0.40;
+    crosshairY += (targetMouseY - crosshairY) * 0.40;
+
+    crosshair.style.left = crosshairX + "px";
+    crosshair.style.top = crosshairY + "px";
+
+    requestAnimationFrame(smoothCrosshair);
+}
+
+smoothCrosshair();
+
+
+// 🔫 Shooting / sensor system
+gameArea.addEventListener("click", (event) => {
+    if (!gameRunning) return;
+
+    const rect = gameArea.getBoundingClientRect();
+
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    const alienRect = fruit.getBoundingClientRect();
+
+    const alienX =
+        alienRect.left - rect.left + alienRect.width / 2;
+
+    const alienY =
+        alienRect.top - rect.top + alienRect.height / 2;
+
+    const dx = mouseX - alienX;
+    const dy = mouseY - alienY;
+
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+
+    if (distance <= sensorRadius) {
+
+        // HIT
+        fruit.classList.add("fruit-hit");
+
+        score++;
+        scoreDisplay.textContent = "Score: " + score;
+
+        createBloodEffect(alienX, alienY);
+
+
+        if (hitSound.state === "suspended") {
+            hitSound.resume();
+        }
+
+        const oscillator = hitSound.createOscillator();
+        const gainNode = hitSound.createGain();
+
+        oscillator.frequency.value = 600;
+        gainNode.gain.value = 0.1;
+
+        oscillator.connect(gainNode);
+        gainNode.connect(hitSound.destination);
+
+        oscillator.start();
+        oscillator.stop(hitSound.currentTime + 0.1);
+
+
+        const points = document.createElement("div");
+
+        points.textContent = "+1";
+        points.classList.add("points-popup");
+
+        points.style.left = alienX + "px";
+        points.style.top = alienY + "px";
+
+        gameArea.appendChild(points);
+
+        setTimeout(() => {
+            points.remove();
+        }, 500);
+
+
+        if (score >= targetScore) {
+            showLevelPassed();
+            return;
+        }
+
+
+        setTimeout(() => {
+            fruit.classList.remove("fruit-hit");
+
+            if (gameRunning) {
+                resetFruit();
+            }
+        }, 200);
+
+    } else {
+
+        // MISS
+        misses++;
+
+        missesDisplay.textContent = "Misses: " + misses;
+    }
+});
+
 
 bomb.addEventListener("click", () => {
     if (!gameRunning || bomb.style.display === "none") return;
 
     gameRunning = false;
     bomb.style.display = "none";
+
     gameArea.classList.add("game-shake");
 
     setTimeout(() => {
@@ -272,11 +350,5 @@ bomb.addEventListener("click", () => {
     }, 300);
 });
 
-restartButton.addEventListener("click", restartLevel1);
-  
-gameArea.addEventListener("mousemove", (event) => {
-    const rect = gameArea.getBoundingClientRect();
 
-    crosshair.style.left = (event.clientX - rect.left) + "px";
-    crosshair.style.top = (event.clientY - rect.top) + "px";
-});
+restartButton.addEventListener("click", restartLevel1);
