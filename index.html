@@ -1,21 +1,26 @@
-<!DOCTYPE html> <!-- Tells the browser this is an HTML5 document -->
-<html> <!-- Root element of the entire HTML document -->
-<head> <!-- Contains information about the webpage -->
-    <title>Cyberfall</title> <!-- The title shown in the browser tab -->
-    <link rel="stylesheet" href="style.css"> <!-- Connects our CSS file to the HTML -->
-</head> <!-- Ends the head section -->
+<!DOCTYPE html>
+<html>
 
-<body> <!-- Contains everything visible on the webpage -->
-    <h1>CYBERFALL</h1> <!-- Main heading of the game -->
-    
+<head>
+    <title>Cyberfall</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <h1>CYBERFALL</h1>
+
     <p id="score">Score: 0</p>
-    <p id="misses">Misses: 0</p> <!-- Displays how many fruits the player has missed -->
+    <p id="misses">Misses: 0</p>
     <p id="lives">Lives: ❤️❤️❤️❤️</p>
-    
+
     <div id="game-area">
+
         <div id="scope-view">
+
             <div id="building-back-1"></div>
             <div id="building-back-2"></div>
+
             <div id="building">
                 <span></span>
                 <span></span>
@@ -31,24 +36,50 @@
                 <span></span>
             </div>
 
+            <!-- Normal gameplay alien -->
             <div id="fruit">👽</div>
+
+            <!-- Final jumpscare alien -->
+            <div id="jumpscare-alien">👽</div>
+
         </div>
 
+
+        <!-- Sniper reticle -->
         <div id="crosshair">
             <div class="crosshair-circle"></div>
             <div class="crosshair-center">+</div>
         </div>
-        
+
+
+        <!-- Bomb -->
         <div id="bomb">💣</div>
 
+
+        <!-- Cyber Game Over -->
         <div id="game-over">
-            <h2>Game Over!</h2>
-            <button id="restart-button">Play Again</button>
+
+            <div class="danger-symbol">☠</div>
+
+            <div class="system-warning">
+                SYSTEM FAILURE
+            </div>
+
+            <h2>GAME OVER</h2>
+
+            <div class="game-over-line"></div>
+
+            <button id="restart-button">
+                RESTART
+            </button>
+
         </div>
+
     </div>
 
-    <script src="script.js"></script> <!-- Connects our JavaScript file -->
 
-</body> <!-- Ends the visible webpage content -->
+    <script src="script.js"></script>
 
-</html> <!-- Ends the entire HTML document --> 
+</body>
+
+</html>

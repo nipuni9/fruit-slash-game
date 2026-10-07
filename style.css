@@ -1,28 +1,55 @@
+/* =========================
+   BODY
+========================= */
+
 body {
     background-color: black;
 }
 
+
+/* =========================
+   GAME AREA
+========================= */
+
 #game-area {
     width: 800px;
     height: 500px;
+
     border: 3px solid rgb(46, 123, 123);
-    box-shadow: 0 0 15px cyan;
+
+    box-shadow:
+        0 0 15px cyan;
+
     position: relative;
+
+    cursor: none;
 }
+
+
+/* =========================
+   NORMAL ALIEN
+========================= */
 
 #fruit {
     position: absolute;
+
     left: 300px;
     top: 200px;
+
     font-size: 24px;
 }
 
-/* Fruit hit animation */
+
+/* =========================
+   ALIEN HIT
+========================= */
+
 .fruit-hit {
     animation: fruitHit 0.5s ease;
 }
 
 @keyframes fruitHit {
+
     0% {
         transform: scale(1);
         opacity: 1;
@@ -30,17 +57,26 @@ body {
     }
 
     20% {
-        transform: translateX(-8px) scale(1.2);
+        transform:
+            translateX(-8px)
+            scale(1.2);
+
         filter: brightness(3);
     }
 
     40% {
-        transform: translateX(8px) scale(1.3);
+        transform:
+            translateX(8px)
+            scale(1.3);
+
         opacity: 0.8;
     }
 
     60% {
-        transform: translateX(-5px) scale(1.1);
+        transform:
+            translateX(-5px)
+            scale(1.1);
+
         filter: brightness(2);
     }
 
@@ -50,13 +86,22 @@ body {
     }
 }
 
-/* +1 popup */
+
+/* =========================
+   +1 POPUP
+========================= */
+
 .points-popup {
     position: absolute;
+
     color: green;
+
     font-size: 24px;
+
     font-weight: bold;
+
     pointer-events: none;
+
     animation: pointsUp 0.5s ease;
 }
 
@@ -64,21 +109,30 @@ body {
 
     0% {
         opacity: 1;
-        transform: translateY(0);
+
+        transform:
+            translateY(0);
     }
 
     100% {
         opacity: 0;
-        transform: translateY(-40px);
-    }
 
+        transform:
+            translateY(-40px);
+    }
 }
+
+
+/* =========================
+   GAME SHAKE
+========================= */
 
 .game-shake {
     animation: shake 0.3s ease;
 }
 
 @keyframes shake {
+
     0% {
         transform: translateX(0);
     }
@@ -104,191 +158,755 @@ body {
     }
 }
 
+
+/* =========================
+   BOMB
+========================= */
+
 #bomb {
     position: absolute;
+
     font-size: 24px;
+
     cursor: pointer;
 }
 
-/* Game Over screen */
+
+/* =========================
+   CYBER GAME OVER
+========================= */
+
 #game-over {
     display: none;
+
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 100;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(180, 0, 0, 0.45),
+            rgba(30, 0, 0, 0.92) 45%,
+            rgba(0, 0, 0, 0.99) 80%
+        );
+
+    color: red;
+
+    text-align: center;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    font-family: monospace;
+
+    box-shadow:
+        inset 0 0 80px
+        rgba(255, 0, 0, 0.5);
 }
 
+
+/* =========================
+   DANGER SYMBOL
+========================= */
+
+.danger-symbol {
+
+    font-size: 150px;
+
+    color: red;
+
+    text-shadow:
+        0 0 10px red,
+        0 0 25px red,
+        0 0 50px red,
+        0 0 90px darkred;
+
+    animation:
+        dangerPulse
+        0.35s
+        infinite
+        alternate;
+}
+
+@keyframes dangerPulse {
+
+    from {
+        transform: scale(1);
+        opacity: 0.7;
+    }
+
+    to {
+        transform: scale(1.12);
+        opacity: 1;
+    }
+}
+
+
+/* =========================
+   SYSTEM WARNING
+========================= */
+
+.system-warning {
+
+    margin-top: 5px;
+
+    font-size: 22px;
+
+    letter-spacing: 8px;
+
+    color: #ff3333;
+
+    text-shadow:
+        0 0 8px red,
+        0 0 20px red,
+        0 0 35px darkred;
+}
+
+
+/* =========================
+   GAME OVER TITLE
+========================= */
+
+#game-over h2 {
+
+    margin: 10px 0;
+
+    font-size: 64px;
+
+    letter-spacing: 10px;
+
+    color: red;
+
+    text-shadow:
+        0 0 10px red,
+        0 0 30px red,
+        0 0 60px darkred;
+}
+
+
+/* =========================
+   GAME OVER LINE
+========================= */
+
+.game-over-line {
+
+    width: 300px;
+
+    height: 2px;
+
+    background: red;
+
+    box-shadow:
+        0 0 8px red,
+        0 0 20px red;
+
+    margin:
+        15px 0 25px;
+}
+
+
+/* =========================
+   RESTART BUTTON
+========================= */
+
+#restart-button {
+
+    padding:
+        12px 35px;
+
+    background:
+        transparent;
+
+    color: red;
+
+    border:
+        2px solid red;
+
+    font-family:
+        monospace;
+
+    font-size:
+        18px;
+
+    font-weight:
+        bold;
+
+    letter-spacing:
+        3px;
+
+    cursor:
+        pointer;
+
+    box-shadow:
+        0 0 10px
+        rgba(255, 0, 0, 0.5);
+}
+
+#restart-button:hover {
+
+    background:
+        red;
+
+    color:
+        black;
+
+    box-shadow:
+        0 0 20px red,
+        0 0 40px red;
+}
+
+
+/* =========================
+   LEVEL PASSED
+========================= */
+
 #level-passed {
+
     position: absolute;
+
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+
+    transform:
+        translate(-50%, -50%);
+
     width: 90%;
-    padding: 25px 10px;
-    box-sizing: border-box;
-    background: gold;
-    color: darkred;
-    border: 4px solid white;
-    border-radius: 20px;
-    font-size: 20px;
-    font-weight: bold;
-    text-align: center;
-    z-index: 20;
-    animation: levelCelebration 0.6s ease;
+
+    padding:
+        25px 10px;
+
+    box-sizing:
+        border-box;
+
+    background:
+        gold;
+
+    color:
+        darkred;
+
+    border:
+        4px solid white;
+
+    border-radius:
+        20px;
+
+    font-size:
+        20px;
+
+    font-weight:
+        bold;
+
+    text-align:
+        center;
+
+    z-index:
+        20;
+
+    animation:
+        levelCelebration
+        0.6s ease;
 }
 
 @keyframes levelCelebration {
+
     0% {
-        transform: translate(-50%, -50%) scale(0.2);
+        transform:
+            translate(-50%, -50%)
+            scale(0.2);
     }
 
     70% {
-        transform: translate(-50%, -50%) scale(1.1);
+        transform:
+            translate(-50%, -50%)
+            scale(1.1);
     }
 
     100% {
-        transform: translate(-50%, -50%) scale(1);
+        transform:
+            translate(-50%, -50%)
+            scale(1);
     }
 }
 
-
 #level-passed h2 {
-    font-size: 30px;
-    margin-top: 0;
+
+    font-size:
+        30px;
+
+    margin-top:
+        0;
 }
 
 #level-passed p {
-    font-size: 17px;
-    margin: 12px 0;
+
+    font-size:
+        17px;
+
+    margin:
+        12px 0;
 }
 
 #level-passed button {
-    padding: 10px 16px;
-    margin: 8px 5px;
-    font-size: 15px;
-    font-weight: bold;
-    cursor: pointer;
-    border: none;
-    border-radius: 8px;
-    max-height: 90%;
-    overflow-y: auto;
+
+    padding:
+        10px 16px;
+
+    margin:
+        8px 5px;
+
+    font-size:
+        15px;
+
+    font-weight:
+        bold;
+
+    cursor:
+        pointer;
+
+    border:
+        none;
+
+    border-radius:
+        8px;
+
+    max-height:
+        90%;
+
+    overflow-y:
+        auto;
 }
+
+
+/* =========================
+   CROSSHAIR
+========================= */
 
 #crosshair {
-    position: absolute;
-    left: 400px;
-    top: 250px;
-    transform: translate(-50%, -50%);
-    color: red;
-    pointer-events: none;
+
+    position:
+        absolute;
+
+    left:
+        400px;
+
+    top:
+        250px;
+
+    transform:
+        translate(-50%, -50%);
+
+    color:
+        red;
+
+    pointer-events:
+        none;
+
+    z-index:
+        60;
 }
 
-#game-area {
-    cursor: none;
-}
 .crosshair-circle {
-    width: 70px;
-    height: 70px;
-    border: 1px solid darkred;
-    border-radius: 50%;
-    box-shadow: 0 0 8px darkred;
-}
 
-.blood-particle {
-    position: absolute;
-    width: 7px;
-    height: 7px;
-    background: red;
-    border-radius: 50%;
-    pointer-events: none;
-    animation: bloodSpread 0.4s ease-out forwards;
-}
+    width:
+        70px;
 
-@keyframes bloodSpread {
-    0% {
-        transform: translate(0, 0) scale(1);
-        opacity: 1;
-    }
+    height:
+        70px;
 
-    100% {
-        transform: translate(var(--move-x), var(--move-y)) scale(0.3);
-        opacity: 0;
-    }
+    border:
+        1px solid darkred;
+
+    border-radius:
+        50%;
+
+    box-shadow:
+        0 0 8px darkred;
 }
 
 .crosshair-center {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: red;
+
+    position:
+        absolute;
+
+    top:
+        50%;
+
+    left:
+        50%;
+
+    transform:
+        translate(-50%, -50%);
+
+    color:
+        red;
 }
+
+
+/* =========================
+   BLOOD
+========================= */
+
+.blood-particle {
+
+    position:
+        absolute;
+
+    width:
+        7px;
+
+    height:
+        7px;
+
+    background:
+        red;
+
+    border-radius:
+        50%;
+
+    pointer-events:
+        none;
+
+    animation:
+        bloodSpread
+        0.4s
+        ease-out
+        forwards;
+}
+
+@keyframes bloodSpread {
+
+    0% {
+
+        transform:
+            translate(0, 0)
+            scale(1);
+
+        opacity:
+            1;
+    }
+
+    100% {
+
+        transform:
+            translate(
+                var(--move-x),
+                var(--move-y)
+            )
+            scale(0.3);
+
+        opacity:
+            0;
+    }
+}
+
+
+/* =========================
+   SCOPE
+========================= */
 
 #scope-view {
-    width: 420px;
-    height: 420px;
-    border-radius: 50%;
+
+    width:
+        420px;
+
+    height:
+        420px;
+
+    border-radius:
+        50%;
+
     background:
-    linear-gradient(to bottom, #02050a 0%, #071b24 60%, #020305 100%);
-    background-color: #071014;
-    position: absolute;
-    top: 40;
-    left: 190px;
-    overflow: hidden;
+        linear-gradient(
+            to bottom,
+            #02050a 0%,
+            #071b24 60%,
+            #020305 100%
+        );
+
+    background-color:
+        #071014;
+
+    position:
+        absolute;
+
+    top:
+        40px;
+
+    left:
+        190px;
+
+    overflow:
+        hidden;
 }
 
+
+/* =========================
+   MAIN BUILDING
+========================= */
+
 #building {
-    position: absolute;
-    width: 180px;
-    height: 280px;
-    left: 160px;
-    bottom: 0;
-    background-color: #080d12;
-    border: 2px solid rgb(46, 123, 123);
+
+    position:
+        absolute;
+
+    width:
+        180px;
+
+    height:
+        280px;
+
+    left:
+        160px;
+
+    bottom:
+        0;
+
+    background-color:
+        #080d12;
+
+    border:
+        2px solid rgb(46, 123, 123);
 }
 
 #building span {
-    display: block;
-    position: absolute;
-    width: 18px;
-    height: 28px;
-    background-color: #ffd83d;
-    box-shadow: 0 0 6px #ffd83d;
+
+    display:
+        block;
+
+    position:
+        absolute;
+
+    width:
+        18px;
+
+    height:
+        28px;
+
+    background-color:
+        #ffd83d;
+
+    box-shadow:
+        0 0 6px #ffd83d;
 }
 
-#building span:nth-child(1) { left: 20px; top: 25px; }
-#building span:nth-child(2) { left: 70px; top: 25px; }
-#building span:nth-child(3) { left: 120px; top: 25px; }
 
-#building span:nth-child(4) { left: 40px; top: 80px; }
-#building span:nth-child(5) { left: 100px; top: 80px; }
-#building span:nth-child(6) { left: 145px; top: 80px; }
+#building span:nth-child(1) {
+    left: 20px;
+    top: 25px;
+}
 
-#building span:nth-child(7) { left: 20px; top: 140px; }
-#building span:nth-child(8) { left: 75px; top: 140px; }
-#building span:nth-child(9) { left: 130px; top: 140px; }
+#building span:nth-child(2) {
+    left: 70px;
+    top: 25px;
+}
 
-#building span:nth-child(10) { left: 45px; top: 200px; }
-#building span:nth-child(11) { left: 100px; top: 200px; }
-#building span:nth-child(12) { left: 145px; top: 200px; }
+#building span:nth-child(3) {
+    left: 120px;
+    top: 25px;
+}
+
+#building span:nth-child(4) {
+    left: 40px;
+    top: 80px;
+}
+
+#building span:nth-child(5) {
+    left: 100px;
+    top: 80px;
+}
+
+#building span:nth-child(6) {
+    left: 145px;
+    top: 80px;
+}
+
+#building span:nth-child(7) {
+    left: 20px;
+    top: 140px;
+}
+
+#building span:nth-child(8) {
+    left: 75px;
+    top: 140px;
+}
+
+#building span:nth-child(9) {
+    left: 130px;
+    top: 140px;
+}
+
+#building span:nth-child(10) {
+    left: 45px;
+    top: 200px;
+}
+
+#building span:nth-child(11) {
+    left: 100px;
+    top: 200px;
+}
+
+#building span:nth-child(12) {
+    left: 145px;
+    top: 200px;
+}
+
+
+/* =========================
+   BACKGROUND BUILDINGS
+========================= */
 
 #building-back-1 {
-    position: absolute;
-    width: 100px;
-    height: 180px;
-    left: 30px;
-    bottom: 0;
-    background-color: #03070a;
+
+    position:
+        absolute;
+
+    width:
+        100px;
+
+    height:
+        180px;
+
+    left:
+        30px;
+
+    bottom:
+        0;
+
+    background-color:
+        #03070a;
 }
 
 #building-back-2 {
-    position: absolute;
-    width: 120px;
-    height: 220px;
-    right: 25px;
-    bottom: 0;
-    background-color: #05090c;
+
+    position:
+        absolute;
+
+    width:
+        120px;
+
+    height:
+        220px;
+
+    right:
+        25px;
+
+    bottom:
+        0;
+
+    background-color:
+        #05090c;
 }
 
+
+/* =========================
+   LIVES
+========================= */
+
 #lives {
-    color: white;
-    font-size: 20px;
-    font-weight: bold;
+
+    color:
+        white;
+
+    font-size:
+        20px;
+
+    font-weight:
+        bold;
+}
+
+
+/* =========================
+   FINAL JUMPSCARE ALIEN
+========================= */
+
+#jumpscare-alien {
+
+    display:
+        none;
+
+    position:
+        absolute;
+
+    left:
+        50%;
+
+    top:
+        50%;
+
+    transform:
+        translate(-50%, -50%)
+        scale(0.02);
+
+    font-size:
+        120px;
+
+    z-index:
+        80;
+
+    filter:
+        drop-shadow(0 0 10px red)
+        drop-shadow(0 0 30px darkred);
+
+    pointer-events:
+        none;
+}
+
+
+/* VERY FAST JUMPSCARE */
+
+@keyframes alienJumpscare {
+
+    0% {
+
+        transform:
+            translate(-50%, -50%)
+            scale(0.02);
+
+        opacity:
+            0;
+    }
+
+    55% {
+
+        transform:
+            translate(-50%, -50%)
+            scale(0.03);
+
+        opacity:
+            1;
+    }
+
+    75% {
+
+        transform:
+            translate(-50%, -50%)
+            scale(0.15);
+    }
+
+    88% {
+
+        transform:
+            translate(-50%, -50%)
+            scale(0.8);
+    }
+
+    96% {
+
+        transform:
+            translate(-50%, -50%)
+            scale(2.5);
+    }
+
+    100% {
+
+        transform:
+            translate(-50%, -50%)
+            scale(6);
+    }
 }
