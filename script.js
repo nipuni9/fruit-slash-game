@@ -12,6 +12,7 @@ const restartButton = document.getElementById("restart-button");
 const gameArea = document.getElementById("game-area");
 const crosshair = document.getElementById("crosshair");
 const jumpscareAlien = document.getElementById("jumpscare-alien");
+const windows = document.querySelectorAll(".building-windows span");
 
 /* =========================
    SOUND
@@ -22,7 +23,24 @@ const hitSound = new AudioContext();
 const scareSound = new AudioContext();
 
 /* =========================
-   CREEPY JUMPSCARE SOUND
+   GAME VARIABLES
+========================= */
+
+let score = 0;
+let misses = 0;
+let lives = 4;
+let gameRunning = true;
+let levelPassed = false;
+
+const targetScore = 100;
+const sensorRadius = 30;
+const autoShootRadius = 8;
+let lastAutoShot = 0;
+const autoShootCooldown = 300;
+const glowingWindows = [0, 3, 4, 6, 9, 10];
+
+/* =========================
+   JUMPSCARE SOUND
 ========================= */
 
 function playScareSound() {
@@ -32,7 +50,6 @@ function playScareSound() {
 
     const now = scareSound.currentTime;
 
-    // Deep rumble
     const rumble = scareSound.createOscillator();
     const rumbleGain = scareSound.createGain();
 
@@ -45,11 +62,9 @@ function playScareSound() {
 
     rumble.connect(rumbleGain);
     rumbleGain.connect(scareSound.destination);
-
     rumble.start(now);
     rumble.stop(now + 1);
 
-    // High-pitched synthetic scream
     const scream = scareSound.createOscillator();
     const screamGain = scareSound.createGain();
 
@@ -63,42 +78,37 @@ function playScareSound() {
 
     scream.connect(screamGain);
     screamGain.connect(scareSound.destination);
-
     scream.start(now);
     scream.stop(now + 1);
 }
 
 /* =========================
-   GAME VARIABLES
-========================= */
-
-let score = 0;
-let misses = 0;
-let lives = 4;
-let gameRunning = true;
-let levelPassed = false;
-let fruitsSpawned = 0;
-
-const targetScore = 100;
-const sensorRadius = 30;
-
-/* =========================
-   RESET ALIEN
+   ALIEN RESET
 ========================= */
 
 function resetFruit() {
-    fruit.textContent =
-        fruits[Math.floor(Math.random() * fruits.length)];
-
+    fruit.textContent = fruits[Math.floor(Math.random() * fruits.length)];
     fruit.style.left = Math.floor(Math.random() * 396) + "px";
     fruit.style.top = "0px";
     fruit.style.display = "block";
-
-    fruitsSpawned++;
+    fruit.classList.remove("fruit-hit");
 }
 
 /* =========================
-   LEVEL 1 COMPLETED
+   SCORE UPDATE
+========================= */
+
+function addScore(points = 1) {
+    score += points;
+    scoreDisplay.textContent = "Score: " + score;
+
+    if (score >= targetScore) {
+        showLevelPassed();
+    }
+}
+
+/* =========================
+   LEVEL COMPLETED
 ========================= */
 
 function showLevelPassed() {
@@ -119,10 +129,7 @@ function showLevelPassed() {
     const nextButton = document.createElement("button");
     nextButton.textContent = "Next Level ➜";
 
-    message.appendChild(heading);
-    message.appendChild(replayButton);
-    message.appendChild(nextButton);
-
+    message.append(heading, replayButton, nextButton);
     gameArea.appendChild(message);
 
     replayButton.addEventListener("click", restartLevel1);
@@ -130,7 +137,7 @@ function showLevelPassed() {
 }
 
 /* =========================
-   GAME OVER / JUMPSCARE
+   GAME OVER
 ========================= */
 
 function endGame() {
@@ -140,15 +147,11 @@ function endGame() {
 
     fruit.style.display = "none";
     crosshair.style.display = "none";
-
     jumpscareAlien.style.display = "block";
 
-    // Restart the jumpscare animation
     jumpscareAlien.style.animation = "none";
     void jumpscareAlien.offsetWidth;
-
-    jumpscareAlien.style.animation =
-        "alienJumpscare 0.8s ease-in forwards";
+    jumpscareAlien.style.animation = "alienJumpscare 0.8s ease-in forwards";
 
     playScareSound();
 
@@ -167,7 +170,6 @@ function restartLevel1() {
     lives = 4;
     gameRunning = true;
     levelPassed = false;
-    fruitsSpawned = 0;
 
     scoreDisplay.textContent = "Score: 0";
     missesDisplay.textContent = "Misses: 0";
@@ -175,11 +177,14 @@ function restartLevel1() {
 
     fruit.classList.remove("fruit-hit");
     fruit.style.display = "block";
-
     crosshair.style.display = "block";
 
     jumpscareAlien.style.display = "none";
     jumpscareAlien.style.animation = "none";
+
+    windows.forEach((windowElement) => {
+        windowElement.classList.remove("window-destroyed");
+    });
 
     const oldMessage = document.getElementById("level-passed");
     if (oldMessage) oldMessage.remove();
@@ -199,42 +204,32 @@ function showLevel2Briefing() {
 
     message.innerHTML = `
         <h2>⚔️ LEVEL 2</h2>
-
         <p>Two aliens will fall at the same time!</p>
         <p>⏱️ Catch enough aliens before time runs out.</p>
         <p>❤️ You start with 3 hearts.</p>
         <p>🏆 Beat the special record to earn an extra heart.</p>
         <p>⚔️ Complete Level 2 in time to unlock Double Blade.</p>
         <p><em>Are you ready?</em></p>
-
         <button id="back-button">Back</button>
         <button id="start-level2-button">Start Level 2 ➜</button>
     `;
 
     document.getElementById("back-button").addEventListener("click", () => {
         message.remove();
-
-        // Restore the Level 1 completion screen
         levelPassed = false;
         showLevelPassed();
     });
 
-    document
-        .getElementById("start-level2-button")
-        .addEventListener("click", () => {
-            message.innerHTML = `
-                <h2>Level 2 is next!</h2>
-                <p>
-                    The briefing is ready. We'll add the timer
-                    and two-alien gameplay next.
-                </p>
-                <button id="back-to-level1">Back to Level 1</button>
-            `;
+    document.getElementById("start-level2-button").addEventListener("click", () => {
+        message.innerHTML = `
+            <h2>Level 2 is next!</h2>
+            <p>We'll add the timer and two-alien gameplay next.</p>
+            <button id="back-to-level1">Back to Level 1</button>
+        `;
 
-            document
-                .getElementById("back-to-level1")
-                .addEventListener("click", restartLevel1);
-        });
+        document.getElementById("back-to-level1")
+            .addEventListener("click", restartLevel1);
+    });
 }
 
 /* =========================
@@ -252,20 +247,53 @@ function createBloodEffect(x, y) {
         const angle = Math.random() * Math.PI * 2;
         const distance = 30 + Math.random() * 50;
 
-        const moveX = Math.cos(angle) * distance;
-        const moveY = Math.sin(angle) * distance;
-
-        particle.style.setProperty("--move-x", moveX + "px");
-        particle.style.setProperty("--move-y", moveY + "px");
+        particle.style.setProperty("--move-x", Math.cos(angle) * distance + "px");
+        particle.style.setProperty("--move-y", Math.sin(angle) * distance + "px");
 
         gameArea.appendChild(particle);
-
         setTimeout(() => particle.remove(), 400);
     }
 }
 
 /* =========================
-   INITIAL ALIEN
+   HIT SOUND
+========================= */
+
+function playHitSound() {
+    if (hitSound.state === "suspended") {
+        hitSound.resume();
+    }
+
+    const oscillator = hitSound.createOscillator();
+    const gainNode = hitSound.createGain();
+
+    oscillator.frequency.value = 600;
+    gainNode.gain.value = 0.1;
+
+    oscillator.connect(gainNode);
+    gainNode.connect(hitSound.destination);
+
+    oscillator.start();
+    oscillator.stop(hitSound.currentTime + 0.1);
+}
+
+/* =========================
+   FLOATING POINTS
+========================= */
+
+function showPoints(x, y) {
+    const points = document.createElement("div");
+    points.textContent = "+1";
+    points.classList.add("points-popup");
+    points.style.left = x + "px";
+    points.style.top = y + "px";
+
+    gameArea.appendChild(points);
+    setTimeout(() => points.remove(), 500);
+}
+
+/* =========================
+   INITIALIZE GAME
 ========================= */
 
 resetFruit();
@@ -278,11 +306,8 @@ setInterval(() => {
     if (!gameRunning) return;
 
     const speed = 4 + Math.floor(score / 20);
+    fruit.style.top = ((parseFloat(fruit.style.top) || 0) + speed) + "px";
 
-    fruit.style.top =
-        (parseFloat(fruit.style.top) || 0) + speed + "px";
-
-    // Alien missed
     if ((parseFloat(fruit.style.top) || 0) >= 450) {
         misses++;
         missesDisplay.textContent = "Misses: " + misses;
@@ -319,26 +344,23 @@ function smoothCrosshair() {
     const centerY = 250;
     const scopeRadius = 210;
     const reticleRadius = 35;
+    const sensitivity = 0.45;
 
     const dx = targetMouseX - centerX;
     const dy = targetMouseY - centerY;
     const distance = Math.sqrt(dx * dx + dy * dy);
+    const maxDistance = scopeRadius - reticleRadius;
 
     let limitedX = targetMouseX;
     let limitedY = targetMouseY;
 
-    if (distance > scopeRadius - reticleRadius) {
-        limitedX =
-            centerX + (dx / distance) * (scopeRadius - reticleRadius);
-
-        limitedY =
-            centerY + (dy / distance) * (scopeRadius - reticleRadius);
+    if (distance > maxDistance && distance > 0) {
+        limitedX = centerX + (dx / distance) * maxDistance;
+        limitedY = centerY + (dy / distance) * maxDistance;
     }
 
-    const smoothness = 0.22;
-
-    crosshairX += (limitedX - crosshairX) * smoothness; 
-    crosshairY += (limitedY - crosshairY) * smoothness;
+    crosshairX += (limitedX - crosshairX) * sensitivity;
+    crosshairY += (limitedY - crosshairY) * sensitivity;
 
     crosshair.style.left = crosshairX + "px";
     crosshair.style.top = crosshairY + "px";
@@ -348,89 +370,129 @@ function smoothCrosshair() {
 
 smoothCrosshair();
 
+
 /* =========================
-   SHOOTING / SENSOR
+   AUTOMATIC SNIPER
+========================= */
+
+function autoShoot() {
+    if (!gameRunning || fruit.style.display === "none") {
+        requestAnimationFrame(autoShoot);
+        return;
+    }
+
+    const alienRect = fruit.getBoundingClientRect();
+    const gameRect = gameArea.getBoundingClientRect();
+
+    const alienX = alienRect.left - gameRect.left + alienRect.width / 2;
+    const alienY = alienRect.top - gameRect.top + alienRect.height / 2;
+
+    const reticleRadius = 35;
+    const alienRadius = alienRect.width / 2;
+
+    const dx = crosshairX - alienX;
+    const dy = crosshairY - alienY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    const hitRadius = reticleRadius + alienRadius;  
+
+    const now = performance.now();
+
+    if (
+        distance <= hitRadius &&
+        now - lastAutoShot >= autoShootCooldown
+    ) {
+        lastAutoShot = now;
+
+        fruit.classList.add("fruit-hit");
+
+        createBloodEffect(alienX, alienY);
+        playHitSound();
+        showPoints(alienX, alienY);
+        addScore(1);
+
+        if (gameRunning) {
+            setTimeout(() => {
+                if (gameRunning) resetFruit();
+            }, 200);
+        }
+    }
+
+    requestAnimationFrame(autoShoot);
+}
+
+autoShoot();
+
+
+/* =========================
+   SHOOTING ALIENS
 ========================= */
 
 gameArea.addEventListener("click", (event) => {
     if (!gameRunning) return;
-
-    // Ignore clicks on the Level 1 completion screen
     if (event.target.closest("#level-passed")) return;
 
     const rect = gameArea.getBoundingClientRect();
-
     const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
 
     const alienRect = fruit.getBoundingClientRect();
+    const alienX = alienRect.left - rect.left + alienRect.width / 2;
+    const alienY = alienRect.top - rect.top + alienRect.height / 2;
 
-    const alienX =
-        alienRect.left - rect.left + alienRect.width / 2;
-
-    const alienY =
-        alienRect.top - rect.top + alienRect.height / 2;
+    if (fruit.style.display === "none") return;
 
     const dx = mouseX - alienX;
     const dy = mouseY - alienY;
     const distance = Math.sqrt(dx * dx + dy * dy);
 
-    if (fruit.style.display === "none") return;
-
-    // HIT
     if (distance <= sensorRadius) {
         fruit.classList.add("fruit-hit");
 
-        score++;
-        scoreDisplay.textContent = "Score: " + score;
-
         createBloodEffect(alienX, alienY);
+        playHitSound();
+        showPoints(alienX, alienY);
+        addScore(1);
 
-        if (hitSound.state === "suspended") {
-            hitSound.resume();
-        }
-
-        const oscillator = hitSound.createOscillator();
-        const gainNode = hitSound.createGain();
-
-        oscillator.frequency.value = 600;
-        gainNode.gain.value = 0.1;
-
-        oscillator.connect(gainNode);
-        gainNode.connect(hitSound.destination);
-
-        oscillator.start();
-        oscillator.stop(hitSound.currentTime + 0.1);
-
-        // Floating points
-        const points = document.createElement("div");
-        points.textContent = "+1";
-        points.classList.add("points-popup");
-
-        points.style.left = alienX + "px";
-        points.style.top = alienY + "px";
-
-        gameArea.appendChild(points);
-
-        setTimeout(() => points.remove(), 500);
-
-        if (score >= targetScore) {
-            showLevelPassed();
-            return;
-        }
+        if (!gameRunning) return;
 
         setTimeout(() => {
-            fruit.classList.remove("fruit-hit");
-
-            if (gameRunning) {
-                resetFruit();
-            }
+            if (gameRunning) resetFruit();
         }, 200);
     } else {
-        // MISS: count the missed shot but do not remove a life
         misses++;
         missesDisplay.textContent = "Misses: " + misses;
     }
+});
+
+/* =========================
+   SHOOTABLE WINDOWS
+========================= */
+
+windows.forEach((windowElement, index) => {
+    if (!glowingWindows.includes(index)) return;
+
+    windowElement.addEventListener("click", (event) => {
+        if (!gameRunning) return;
+
+        if (windowElement.classList.contains("window-destroyed")) {
+            return;
+        }
+
+        event.stopPropagation();
+        windowElement.classList.add("window-destroyed");
+
+        const rect = windowElement.getBoundingClientRect();
+        const gameRect = gameArea.getBoundingClientRect();
+
+        const hitX = rect.left - gameRect.left + rect.width / 2;
+        const hitY = rect.top - gameRect.top + rect.height / 2;
+
+        createBloodEffect(hitX, hitY);
+        playHitSound();
+        showPoints(hitX, hitY);
+        addScore(1);
+    });
 });
 
 /* =========================
