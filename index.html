@@ -1,83 +1,95 @@
-<!DOCTYPE html>
-<html>
 
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Cyberfall</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyberfall | Sniper Protocol</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+    <main class="game-wrapper">
+        <header class="game-header">
+            <h1>CYBERFALL</h1>
+            <p class="subtitle">SNIPER PROTOCOL // NIGHT WATCH</p>
+        </header>
 
-    <h1>CYBERFALL</h1>
+        <section id="game-area" aria-label="Cyberfall game">
 
-    <p id="score">Score: 0</p>
-    <p id="misses">Misses: 0</p>
-    <p id="lives">Lives: ❤️❤️❤️❤️</p>
+            <!-- Scope view: the distant city is visible inside this circle -->
+            <div id="scope-view">
 
-    <div id="game-area">
+                <div class="city-sky"></div>
 
-        <div id="scope-view">
+                <!-- Distant background buildings -->
+                <div class="background-building building-left">
+                    <span></span><span></span><span></span>
+                    <span></span><span></span><span></span>
+                </div>
 
-            <div id="building-back-1"></div>
-            <div id="building-back-2"></div>
+                <div class="background-building building-right">
+                    <span></span><span></span><span></span>
+                    <span></span><span></span><span></span>
+                </div>
 
-            <div id="building">
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
+                <!-- Main target building -->
+                <div id="main-building">
+                    <div class="roof"></div>
+
+                    <div class="building-windows">
+                        <span></span><span></span><span></span><span></span>
+                        <span></span><span></span><span></span><span></span>
+                        <span></span><span></span><span></span><span></span>
+                    </div>
+                </div>
+
+                <div class="city-horizon"></div>
+
+                <!-- Gameplay alien -->
+                <div id="fruit" aria-label="Alien target">👽</div>
+
+                <!-- Jumpscare alien -->
+                <div id="jumpscare-alien" aria-hidden="true">👽</div>
+
             </div>
 
-            <!-- Normal gameplay alien -->
-            <div id="fruit">👽</div>
+            <!-- Scope boundary and dark mask -->
+            <div class="scope-mask" aria-hidden="true"></div>
 
-            <!-- Final jumpscare alien -->
-            <div id="jumpscare-alien">👽</div>
+            <!-- HUD: stays above the scope and mask -->
+            <div class="hud">
+                <div id="score">Score: 0</div>
+                <div id="misses">Misses: 0</div>
+                <div id="lives">Lives: ❤️❤️❤️❤️</div>
+            </div>
 
-        </div>
+            <!-- Mouse-controlled sniper reticle -->
+            <div id="crosshair" aria-hidden="true">
+                <div class="crosshair-circle"></div>
+                <div class="crosshair-horizontal"></div>
+                <div class="crosshair-vertical"></div>
+                <div class="crosshair-center"></div>
+            </div>
 
+            <!-- Game Over overlay -->
+            <div id="game-over">
+                <div class="danger-symbol">☣</div>
+                <div class="system-warning">⚠ SYSTEM FAILURE ⚠</div>
+                <h2>GAME OVER</h2>
+                <div class="game-over-line"></div>
+                <p class="game-over-message">SNIPER CONNECTION LOST</p>
+                <button id="restart-button" type="button">RESTART</button>
+            </div>
 
-        <!-- Sniper reticle -->
-        <div id="crosshair">
-            <div class="crosshair-circle"></div>
-            <div class="crosshair-center">+</div>
-        </div>
+        </section>
 
-
-        <!-- Bomb -->
-        <div id="bomb">💣</div>
-
-
-        <!-- Cyber Game Over -->
-        <div id="game-over">
-
-            <div class="danger-symbol">☠</div>
-
-            <div class="system-warning">⚠ SYSTEM FAILURE ⚠</div>
-
-            <h2>GAME OVER</h2>
-
-            <div class="game-over-line"></div>
-
-            <button id="restart-button">
-                RESTART
-            </button>
-
-        </div>
-
-    </div>
-
+        <footer class="game-footer">
+            <span>THREAT DETECTION: ACTIVE</span>
+            <span>PROTOCOL: CYBERFALL</span>
+        </footer>
+    </main>
 
     <script src="script.js"></script>
-
 </body>
-
 </html>

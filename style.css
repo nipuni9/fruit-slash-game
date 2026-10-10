@@ -1,912 +1,718 @@
+
 /* =========================
-   BODY
+   GLOBAL
 ========================= */
 
-body {
-    background-color: black;
+* {
+    box-sizing: border-box;
 }
 
+html,
+body {
+    margin: 0;
+    min-height: 100%;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    overflow-x: hidden;
+    background: #020405;
+    color: #e8ffff;
+    font-family: "Courier New", monospace;
+}
+
+button {
+    font-family: inherit;
+}
+
+.game-wrapper {
+    width: 100%;
+    max-width: 900px;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.game-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.game-header h1 {
+    margin: 0;
+    color: #00ffff;
+    font-size: clamp(30px, 5vw, 44px);
+    letter-spacing: 10px;
+    text-shadow:
+        0 0 8px #00ffff,
+        0 0 25px rgba(0, 255, 255, 0.5);
+}
+
+.subtitle {
+    margin: 10px 0 0;
+    color: #7caaaa;
+    font-size: 11px;
+    letter-spacing: 3px;
+}
 
 /* =========================
    GAME AREA
 ========================= */
 
 #game-area {
-    width: 800px;
-    height: 500px;
-
-    border: 3px solid rgb(46, 123, 123);
-
-    box-shadow:
-        0 0 15px cyan;
-
     position: relative;
-
+    width: 100%;
+    max-width: 800px;
+    height: 500px;
+    margin: 0 auto;
+    overflow: hidden;
+    isolation: isolate;
+    background: #000;
+    border: 1px solid rgb(46, 123, 123);
+    box-shadow:
+        0 0 12px rgba(0, 255, 255, 0.2),
+        inset 0 0 20px rgba(0, 255, 255, 0.04);
     cursor: none;
 }
 
+/* =========================
+   CIRCULAR SNIPER SCOPE
+========================= */
+
+#scope-view {
+    position: absolute;
+    width: 420px;
+    height: 420px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    overflow: hidden;
+    border-radius: 50%;
+    background:
+        radial-gradient(
+            circle at 50% 45%,
+            #14272b 0%,
+            #071014 55%,
+            #020405 100%
+        );
+    border: 2px solid rgba(105, 190, 190, 0.8);
+    box-shadow:
+        0 0 10px rgba(0, 255, 255, 0.2),
+        inset 0 0 35px #000;
+    z-index: 1;
+}
+
+.city-sky {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(
+            ellipse at 48% 35%,
+            rgba(29, 61, 67, 0.5),
+            transparent 60%
+        ),
+        linear-gradient(
+            to bottom,
+            #071015 0%,
+            #101c21 55%,
+            #050809 100%
+        );
+}
+
+/* Faint distant city lights */
+.city-sky::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.35;
+    background-image:
+        radial-gradient(circle, #6cb7bd 1px, transparent 2px),
+        radial-gradient(circle, #d6c36b 1px, transparent 2px);
+    background-size: 83px 71px, 113px 89px;
+    background-position: 10px 20px, 42px 37px;
+}
 
 /* =========================
-   NORMAL ALIEN
+   DISTANT BUILDINGS
+========================= */
+
+.background-building {
+    position: absolute;
+    bottom: 95px;
+    width: 90px;
+    height: 165px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 13px;
+    padding: 15px;
+    background: #080e12;
+    border: 1px solid #17292e;
+    opacity: 0.8;
+}
+
+.background-building span {
+    background: #17252a;
+    box-shadow: 0 0 3px rgba(0, 255, 255, 0.08);
+}
+
+.building-left {
+    left: 8px;
+    height: 145px;
+    transform: skewY(-3deg);
+}
+
+.building-right {
+    right: 4px;
+    height: 185px;
+    transform: skewY(3deg);
+}
+
+.background-building span:nth-child(2),
+.background-building span:nth-child(5) {
+    background: #a18b42;
+    box-shadow: 0 0 7px rgba(255, 213, 90, 0.35);
+}
+
+/* =========================
+   MAIN TARGET BUILDING
+========================= */
+
+#main-building {
+    position: absolute;
+    left: 50%;
+    bottom: 60px;
+    transform: translateX(-50%);
+    width: 210px;
+    height: 230px;
+    background: linear-gradient(
+        90deg,
+        #10191d,
+        #1b292d 50%,
+        #0b1216
+    );
+    border: 1px solid #263a3f;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
+}
+
+#main-building::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 38px,
+        rgba(0, 0, 0, 0.45) 39px,
+        rgba(0, 0, 0, 0.45) 42px
+    );
+}
+
+.roof {
+    position: absolute;
+    top: -10px;
+    left: -8px;
+    right: -8px;
+    height: 12px;
+    background: #26383d;
+    border: 1px solid #344b50;
+}
+
+.building-windows {
+    position: absolute;
+    top: 20px;
+    left: 17px;
+    right: 17px;
+    bottom: 12px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.building-windows span {
+    background: #111b1f;
+    border: 1px solid #202f32;
+}
+
+.building-windows span:nth-child(3n + 1),
+.building-windows span:nth-child(5),
+.building-windows span:nth-child(10) {
+    background: #b19a43;
+    border-color: #d4b85a;
+    box-shadow:
+        0 0 6px rgba(255, 218, 87, 0.6),
+        inset 0 0 5px rgba(255, 220, 100, 0.4);
+}
+
+.city-horizon {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 75px;
+    background: linear-gradient(
+        to bottom,
+        transparent,
+        rgba(0, 0, 0, 0.95)
+    );
+}
+
+/* =========================
+   ALIEN TARGET
 ========================= */
 
 #fruit {
     position: absolute;
-
-    left: 300px;
-    top: 200px;
-
+    top: 0;
+    left: 190px;
+    z-index: 10;
+    display: block;
     font-size: 24px;
+    line-height: 1;
+    user-select: none;
+    cursor: none;
+    filter: drop-shadow(0 0 5px rgba(0, 255, 120, 0.4));
 }
-
-
-/* =========================
-   ALIEN HIT
-========================= */
 
 .fruit-hit {
-    animation: fruitHit 0.5s ease;
+    animation: alienHit 0.2s ease-out;
 }
 
-@keyframes fruitHit {
-
+@keyframes alienHit {
     0% {
         transform: scale(1);
         opacity: 1;
-        filter: brightness(1);
     }
 
-    20% {
-        transform:
-            translateX(-8px)
-            scale(1.2);
-
-        filter: brightness(3);
-    }
-
-    40% {
-        transform:
-            translateX(8px)
-            scale(1.3);
-
-        opacity: 0.8;
-    }
-
-    60% {
-        transform:
-            translateX(-5px)
-            scale(1.1);
-
-        filter: brightness(2);
+    50% {
+        transform: scale(1.5);
+        opacity: 0.6;
     }
 
     100% {
-        transform: scale(0);
+        transform: scale(0.2);
         opacity: 0;
     }
 }
 
+/* =========================
+   SCOPE MASK
+   Dark outside the circle
+========================= */
+
+.scope-mask {
+    position: absolute;
+    inset: 0;
+    z-index: 15;
+    pointer-events: none;
+    background: radial-gradient(
+        circle 210px at center,
+        transparent 207px,
+        rgba(0, 0, 0, 0.98) 212px
+    );
+}
 
 /* =========================
-   +1 POPUP
+   HUD
+========================= */
+
+.hud {
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+    pointer-events: none;
+}
+
+#score {
+    position: absolute;
+    top: 12px;
+    left: 15px;
+    z-index: 31;
+    color: #00ffff;
+    font-size: 20px;
+    font-weight: bold;
+    text-shadow: 0 0 8px #00ffff;
+}
+
+#misses {
+    position: absolute;
+    top: 42px;
+    left: 15px;
+    z-index: 31;
+    color: #a8caca;
+    font-size: 14px;
+    text-shadow: 0 0 5px #00ffff;
+}
+
+#lives {
+    position: absolute;
+    top: 12px;
+    right: 15px;
+    z-index: 31;
+    color: #fff;
+    font-size: 17px;
+    letter-spacing: 2px;
+    text-shadow: 0 0 8px rgba(255, 0, 55, 0.6);
+}
+
+/* =========================
+   SNIPER RETICLE
+========================= */
+
+#crosshair {
+    position: absolute;
+    left: 400px;
+    top: 250px;
+    width: 70px;
+    height: 70px;
+    transform: translate(-50%, -50%);
+    z-index: 40;
+    pointer-events: none;
+    filter: drop-shadow(0 0 4px rgba(255, 0, 35, 0.85));
+}
+
+.crosshair-circle {
+    position: absolute;
+    inset: 0;
+    border: 1.5px solid #ff173d;
+    border-radius: 50%;
+}
+
+.crosshair-horizontal {
+    position: absolute;
+    top: 50%;
+    left: -7px;
+    right: -7px;
+    height: 1px;
+    transform: translateY(-50%);
+    background: #ff173d;
+}
+
+.crosshair-vertical {
+    position: absolute;
+    left: 50%;
+    top: -7px;
+    bottom: -7px;
+    width: 1px;
+    transform: translateX(-50%);
+    background: #ff173d;
+}
+
+.crosshair-center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 5px;
+    height: 5px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: #ff173d;
+    box-shadow: 0 0 7px #ff173d;
+}
+
+/* =========================
+   BLOOD PARTICLES
+========================= */
+
+.blood-particle {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    z-index: 45;
+    border-radius: 50%;
+    pointer-events: none;
+    background: #ff173d;
+    box-shadow: 0 0 6px #ff173d;
+    animation: bloodBurst 0.4s ease-out forwards;
+}
+
+@keyframes bloodBurst {
+    0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(var(--move-x), var(--move-y)) scale(0.2);
+    }
+}
+
+/* =========================
+   FLOATING SCORE
 ========================= */
 
 .points-popup {
     position: absolute;
-
-    color: green;
-
-    font-size: 24px;
-
-    font-weight: bold;
-
+    z-index: 50;
     pointer-events: none;
-
-    animation: pointsUp 0.5s ease;
+    color: #00ffff;
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 0 0 8px #00ffff;
+    animation: pointsFloat 0.5s ease-out forwards;
 }
 
-@keyframes pointsUp {
-
+@keyframes pointsFloat {
     0% {
         opacity: 1;
-
-        transform:
-            translateY(0);
+        transform: translateY(0) scale(1);
     }
 
     100% {
         opacity: 0;
-
-        transform:
-            translateY(-40px);
+        transform: translateY(-35px) scale(1.3);
     }
 }
-
 
 /* =========================
-   GAME SHAKE
+   JUMPSCARE ALIEN
 ========================= */
 
-.game-shake {
-    animation: shake 0.3s ease;
+#jumpscare-alien {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 80;
+    transform: translate(-50%, -50%) scale(0.02);
+    transform-origin: center;
+    font-size: 120px;
+    line-height: 1;
+    pointer-events: none;
+    filter:
+        drop-shadow(0 0 12px red)
+        drop-shadow(0 0 35px #ff003c);
 }
 
-@keyframes shake {
-
+@keyframes alienJumpscare {
     0% {
-        transform: translateX(0);
+        transform: translate(-50%, -50%) scale(0.02);
+        opacity: 0;
     }
 
-    20% {
-        transform: translateX(-10px);
-    }
-
-    40% {
-        transform: translateX(10px);
-    }
-
-    60% {
-        transform: translateX(-10px);
-    }
-
-    80% {
-        transform: translateX(10px);
+    12% {
+        opacity: 1;
     }
 
     100% {
-        transform: translateX(0);
-    }
-}
-
-
-/* =========================
-   BOMB
-========================= */
-
-#bomb {
-    position: absolute;
-
-    font-size: 24px;
-
-    cursor: pointer;
-}
-
-
-/* =========================
-   CYBER GAME OVER
-========================= */
-
-#game-over {
-    display: none;
-
-    position: absolute;
-
-    inset: 0;
-
-    z-index: 100;
-
-    background:
-        radial-gradient(
-            circle at center,
-            rgba(180, 0, 0, 0.45),
-            rgba(30, 0, 0, 0.92) 45%,
-            rgba(0, 0, 0, 0.99) 80%
-        );
-
-    color: red;
-
-    text-align: center;
-
-    flex-direction: column;
-
-    justify-content: center;
-
-    align-items: center;
-
-    font-family: monospace;
-
-    box-shadow:
-        inset 0 0 80px
-        rgba(255, 0, 0, 0.5);
-}
-
-
-/* =========================
-   DANGER SYMBOL
-========================= */
-
-.danger-symbol {
-
-    font-size: 150px;
-
-    color: red;
-
-    text-shadow:
-        0 0 10px red,
-        0 0 25px red,
-        0 0 50px red,
-        0 0 90px darkred;
-
-    animation:
-        dangerPulse
-        0.35s
-        infinite
-        alternate;
-}
-
-@keyframes dangerPulse {
-
-    from {
-        transform: scale(1);
-        opacity: 0.7;
-    }
-
-    to {
-        transform: scale(1.12);
+        transform: translate(-50%, -50%) scale(5);
         opacity: 1;
     }
 }
 
-
 /* =========================
-   SYSTEM WARNING
+   GAME OVER SCREEN
 ========================= */
+
+#game-over {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 100;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    padding: 20px;
+    background:
+        radial-gradient(
+            ellipse at center,
+            rgba(60, 0, 12, 0.96),
+            rgba(3, 0, 4, 0.99) 75%
+        );
+    border: 2px solid #ff173d;
+    box-shadow: inset 0 0 50px rgba(255, 0, 45, 0.16);
+    text-align: center;
+    cursor: default;
+}
+
+.danger-symbol {
+    color: #ff173d;
+    font-size: 65px;
+    line-height: 1;
+    text-shadow:
+        0 0 8px #ff173d,
+        0 0 25px rgba(255, 0, 45, 0.9);
+    animation: dangerPulse 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes dangerPulse {
+    from {
+        opacity: 0.65;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1.08);
+    }
+}
 
 .system-warning {
-
-    margin-top: 5px;
-
-    font-size: 22px;
-
-    letter-spacing: 8px;
-
-    color: #ff3333;
-
-    text-shadow:
-        0 0 8px red,
-        0 0 20px red,
-        0 0 35px darkred;
+    color: #ff526d;
+    font-size: clamp(12px, 2vw, 16px);
+    font-weight: bold;
+    letter-spacing: 4px;
+    text-shadow: 0 0 8px #ff173d;
 }
-
-
-/* =========================
-   GAME OVER TITLE
-========================= */
 
 #game-over h2 {
-
-    margin: 10px 0;
-
-    font-size: 64px;
-
-    letter-spacing: 10px;
-
-    color: red;
-
+    margin: 0;
+    color: #ff173d;
+    font-size: clamp(32px, 6vw, 52px);
+    letter-spacing: 5px;
     text-shadow:
-        0 0 10px red,
-        0 0 30px red,
-        0 0 60px darkred;
+        0 0 8px #ff173d,
+        0 0 25px rgba(255, 0, 45, 0.7);
 }
-
-
-/* =========================
-   GAME OVER LINE
-========================= */
 
 .game-over-line {
-
-    width: 300px;
-
+    width: 200px;
+    max-width: 80%;
     height: 2px;
-
-    background: red;
-
-    box-shadow:
-        0 0 8px red,
-        0 0 20px red;
-
-    margin:
-        15px 0 25px;
+    background: #ff173d;
+    box-shadow: 0 0 10px #ff173d;
 }
 
-
-/* =========================
-   RESTART BUTTON
-========================= */
+.game-over-message {
+    color: #ba6675;
+    font-size: 11px;
+    letter-spacing: 2px;
+}
 
 #restart-button {
-
-    padding:
-        12px 35px;
-
-    background:
-        transparent;
-
-    color: red;
-
-    border:
-        2px solid red;
-
-    font-family:
-        monospace;
-
-    font-size:
-        18px;
-
-    font-weight:
-        bold;
-
-    letter-spacing:
-        3px;
-
-    cursor:
-        pointer;
-
-    box-shadow:
-        0 0 10px
-        rgba(255, 0, 0, 0.5);
+    margin-top: 8px;
+    padding: 12px 30px;
+    border: 1px solid #ff173d;
+    background: rgba(255, 0, 45, 0.08);
+    color: #ff526d;
+    font-size: 15px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(255, 0, 45, 0.2);
+    transition:
+        color 0.2s,
+        background 0.2s,
+        box-shadow 0.2s;
 }
 
 #restart-button:hover {
-
-    background:
-        red;
-
-    color:
-        black;
-
-    box-shadow:
-        0 0 20px red,
-        0 0 40px red;
+    color: #fff;
+    background: #c80030;
+    box-shadow: 0 0 20px rgba(255, 0, 45, 0.6);
 }
 
-
 /* =========================
-   LEVEL PASSED
+   LEVEL PASSED OVERLAY
 ========================= */
 
 #level-passed {
-
     position: absolute;
-
-    top: 50%;
-    left: 50%;
-
-    transform:
-        translate(-50%, -50%);
-
-    width: 90%;
-
-    padding:
-        25px 10px;
-
-    box-sizing:
-        border-box;
-
-    background:
-        gold;
-
-    color:
-        darkred;
-
-    border:
-        4px solid white;
-
-    border-radius:
-        20px;
-
-    font-size:
-        20px;
-
-    font-weight:
-        bold;
-
-    text-align:
-        center;
-
-    z-index:
-        20;
-
-    animation:
-        levelCelebration
-        0.6s ease;
-}
-
-@keyframes levelCelebration {
-
-    0% {
-        transform:
-            translate(-50%, -50%)
-            scale(0.2);
-    }
-
-    70% {
-        transform:
-            translate(-50%, -50%)
-            scale(1.1);
-    }
-
-    100% {
-        transform:
-            translate(-50%, -50%)
-            scale(1);
-    }
+    inset: 0;
+    z-index: 90;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    padding: 25px;
+    background: rgba(0, 8, 12, 0.97);
+    border: 1px solid #00ffff;
+    color: #dfffff;
+    text-align: center;
+    cursor: default;
 }
 
 #level-passed h2 {
-
-    font-size:
-        30px;
-
-    margin-top:
-        0;
+    margin: 0;
+    color: #00ffff;
+    text-shadow: 0 0 10px #00ffff;
 }
 
 #level-passed p {
-
-    font-size:
-        17px;
-
-    margin:
-        12px 0;
+    max-width: 90%;
+    color: #a9cccc;
+    font-size: 14px;
 }
 
 #level-passed button {
-
-    padding:
-        10px 16px;
-
-    margin:
-        8px 5px;
-
-    font-size:
-        15px;
-
-    font-weight:
-        bold;
-
-    cursor:
-        pointer;
-
-    border:
-        none;
-
-    border-radius:
-        8px;
-
-    max-height:
-        90%;
-
-    overflow-y:
-        auto;
+    padding: 10px 18px;
+    border: 1px solid #00ffff;
+    background: transparent;
+    color: #00ffff;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
 }
 
+#level-passed button:hover {
+    color: #001010;
+    background: #00ffff;
+}
 
 /* =========================
-   CROSSHAIR
+   FOOTER
 ========================= */
 
-#crosshair {
-
-    position:
-        absolute;
-
-    left:
-        400px;
-
-    top:
-        250px;
-
-    transform:
-        translate(-50%, -50%);
-
-    color:
-        red;
-
-    pointer-events:
-        none;
-
-    z-index:
-        60;
+.game-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    max-width: 800px;
+    margin: 14px auto 0;
+    color: #4e7777;
+    font-size: 10px;
+    letter-spacing: 1px;
 }
-
-.crosshair-circle {
-
-    width:
-        70px;
-
-    height:
-        70px;
-
-    border:
-        1px solid darkred;
-
-    border-radius:
-        50%;
-
-    box-shadow:
-        0 0 8px darkred;
-}
-
-.crosshair-center {
-
-    position:
-        absolute;
-
-    top:
-        50%;
-
-    left:
-        50%;
-
-    transform:
-        translate(-50%, -50%);
-
-    color:
-        red;
-}
-
 
 /* =========================
-   BLOOD
+   RESPONSIVE
 ========================= */
 
-.blood-particle {
-
-    position:
-        absolute;
-
-    width:
-        7px;
-
-    height:
-        7px;
-
-    background:
-        red;
-
-    border-radius:
-        50%;
-
-    pointer-events:
-        none;
-
-    animation:
-        bloodSpread
-        0.4s
-        ease-out
-        forwards;
-}
-
-@keyframes bloodSpread {
-
-    0% {
-
-        transform:
-            translate(0, 0)
-            scale(1);
-
-        opacity:
-            1;
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
     }
 
-    100% {
-
-        transform:
-            translate(
-                var(--move-x),
-                var(--move-y)
-            )
-            scale(0.3);
-
-        opacity:
-            0;
+    #game-area {
+        height: min(500px, 75vh);
     }
-}
 
+    #scope-view {
+        width: min(420px, 90vw, 70vh);
+        height: min(420px, 90vw, 70vh);
+    }
 
-/* =========================
-   SCOPE
-========================= */
-
-#scope-view {
-
-    width:
-        420px;
-
-    height:
-        420px;
-
-    border-radius:
-        50%;
-
-    background:
-        linear-gradient(
-            to bottom,
-            #02050a 0%,
-            #071b24 60%,
-            #020305 100%
+    .scope-mask {
+        background: radial-gradient(
+            circle min(210px, 45vw, 35vh) at center,
+            transparent min(207px, calc(45vw - 3px), calc(35vh - 3px)),
+            rgba(0, 0, 0, 0.98) min(212px, calc(45vw + 2px), calc(35vh + 2px))
         );
-
-    background-color:
-        #071014;
-
-    position:
-        absolute;
-
-    top:
-        40px;
-
-    left:
-        190px;
-
-    overflow:
-        hidden;
-}
-
-
-/* =========================
-   MAIN BUILDING
-========================= */
-
-#building {
-
-    position:
-        absolute;
-
-    width:
-        180px;
-
-    height:
-        280px;
-
-    left:
-        160px;
-
-    bottom:
-        0;
-
-    background-color:
-        #080d12;
-
-    border:
-        2px solid rgb(46, 123, 123);
-}
-
-#building span {
-
-    display:
-        block;
-
-    position:
-        absolute;
-
-    width:
-        18px;
-
-    height:
-        28px;
-
-    background-color:
-        #ffd83d;
-
-    box-shadow:
-        0 0 6px #ffd83d;
-}
-
-
-#building span:nth-child(1) {
-    left: 20px;
-    top: 25px;
-}
-
-#building span:nth-child(2) {
-    left: 70px;
-    top: 25px;
-}
-
-#building span:nth-child(3) {
-    left: 120px;
-    top: 25px;
-}
-
-#building span:nth-child(4) {
-    left: 40px;
-    top: 80px;
-}
-
-#building span:nth-child(5) {
-    left: 100px;
-    top: 80px;
-}
-
-#building span:nth-child(6) {
-    left: 145px;
-    top: 80px;
-}
-
-#building span:nth-child(7) {
-    left: 20px;
-    top: 140px;
-}
-
-#building span:nth-child(8) {
-    left: 75px;
-    top: 140px;
-}
-
-#building span:nth-child(9) {
-    left: 130px;
-    top: 140px;
-}
-
-#building span:nth-child(10) {
-    left: 45px;
-    top: 200px;
-}
-
-#building span:nth-child(11) {
-    left: 100px;
-    top: 200px;
-}
-
-#building span:nth-child(12) {
-    left: 145px;
-    top: 200px;
-}
-
-
-/* =========================
-   BACKGROUND BUILDINGS
-========================= */
-
-#building-back-1 {
-
-    position:
-        absolute;
-
-    width:
-        100px;
-
-    height:
-        180px;
-
-    left:
-        30px;
-
-    bottom:
-        0;
-
-    background-color:
-        #03070a;
-}
-
-#building-back-2 {
-
-    position:
-        absolute;
-
-    width:
-        120px;
-
-    height:
-        220px;
-
-    right:
-        25px;
-
-    bottom:
-        0;
-
-    background-color:
-        #05090c;
-}
-
-
-/* =========================
-   LIVES
-========================= */
-
-#lives {
-
-    color:
-        white;
-
-    font-size:
-        20px;
-
-    font-weight:
-        bold;
-}
-
-
-/* =========================
-   FINAL JUMPSCARE ALIEN
-========================= */
-
-#jumpscare-alien {
-
-    display:
-        none;
-
-    position:
-        absolute;
-
-    left:
-        50%;
-
-    top:
-        50%;
-
-    transform:
-        translate(-50%, -50%)
-        scale(0.02);
-
-    font-size:
-        120px;
-
-    z-index:
-        80;
-
-    filter:
-        drop-shadow(0 0 10px red)
-        drop-shadow(0 0 30px darkred);
-
-    pointer-events:
-        none;
-}
-
-
-/* VERY FAST JUMPSCARE */
-
-@keyframes alienJumpscare {
-
-    0% {
-
-        transform:
-            translate(-50%, -50%)
-            scale(0.02);
-
-        opacity:
-            0;
     }
 
-    55% {
-
-        transform:
-            translate(-50%, -50%)
-            scale(0.03);
-
-        opacity:
-            1;
+    #score {
+        font-size: 16px;
     }
 
-    75% {
-
-        transform:
-            translate(-50%, -50%)
-            scale(0.15);
+    #misses {
+        font-size: 12px;
     }
 
-    88% {
-
-        transform:
-            translate(-50%, -50%)
-            scale(0.8);
+    #lives {
+        font-size: 14px;
+        letter-spacing: 0;
     }
 
-    96% {
-
-        transform:
-            translate(-50%, -50%)
-            scale(2.5);
-    }
-
-    100% {
-
-        transform:
-            translate(-50%, -50%)
-            scale(6);
+    .game-footer {
+        font-size: 8px;
     }
 }
