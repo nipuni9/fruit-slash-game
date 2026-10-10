@@ -268,18 +268,22 @@ button {
    ALIEN TARGET
 ========================= */
 
+
 #fruit {
     position: absolute;
     top: 0;
     left: 190px;
     z-index: 10;
-    display: block;
-    font-size: 24px;
+
+    font-size: 16px;
     line-height: 1;
+
     user-select: none;
-    cursor: none;
-    filter: drop-shadow(0 0 5px rgba(0, 255, 120, 0.4));
+    pointer-events: none;
+
+    filter: drop-shadow(0 0 3px rgba(0, 255, 120, 0.45));
 }
+
 
 .fruit-hit {
     animation: alienHit 0.2s ease-out;

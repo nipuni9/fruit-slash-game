@@ -335,8 +335,10 @@ function smoothCrosshair() {
             centerY + (dy / distance) * (scopeRadius - reticleRadius);
     }
 
-    crosshairX += (limitedX - crosshairX) * 0.40;
-    crosshairY += (limitedY - crosshairY) * 0.40;
+    const smoothness = 0.22;
+
+    crosshairX += (limitedX - crosshairX) * smoothness; 
+    crosshairY += (limitedY - crosshairY) * smoothness;
 
     crosshair.style.left = crosshairX + "px";
     crosshair.style.top = crosshairY + "px";
