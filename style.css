@@ -1,4 +1,3 @@
-
 /* =========================
    GLOBAL
 ========================= */
@@ -34,9 +33,7 @@ button {
     max-width: 900px;
 }
 
-/* =========================
-   HEADER
-========================= */
+/* HEADER */
 
 .game-header {
     text-align: center;
@@ -58,9 +55,7 @@ button {
     letter-spacing: 3px;
 }
 
-/* =========================
-   GAME AREA
-========================= */
+/* GAME AREA */
 
 #game-area {
     position: relative;
@@ -77,9 +72,7 @@ button {
     cursor: none;
 }
 
-/* =========================
-   STATIONARY SCOPE
-========================= */
+/* STATIONARY SCOPE */
 
 #scope-view {
     position: absolute;
@@ -118,9 +111,7 @@ button {
     background-position: 10px 20px, 42px 37px;
 }
 
-/* =========================
-   BACKGROUND BUILDINGS
-========================= */
+/* BACKGROUND BUILDINGS */
 
 .background-building {
     position: absolute;
@@ -160,9 +151,7 @@ button {
     box-shadow: 0 0 7px rgba(255, 213, 90, 0.35);
 }
 
-/* =========================
-   MAIN BUILDING
-========================= */
+/* MAIN BUILDING */
 
 #main-building {
     position: absolute;
@@ -216,7 +205,8 @@ button {
     transition: background 0.15s, box-shadow 0.15s;
 }
 
-/* Initial illuminated windows: indexes 0, 3, 4, 6, 9 */
+/* Initial illuminated windows */
+
 .building-windows span:nth-child(3n + 1),
 .building-windows span:nth-child(5),
 .building-windows span:nth-child(10) {
@@ -226,7 +216,6 @@ button {
                 inset 0 0 5px rgba(255, 220, 100, 0.4);
 }
 
-/* A destroyed window stays dark */
 .building-windows span.window-destroyed {
     background: #080b0d !important;
     border-color: #341019 !important;
@@ -254,9 +243,7 @@ button {
     background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.95));
 }
 
-/* =========================
-   ALIEN
-========================= */
+/* ALIEN TARGET */
 
 #fruit {
     position: absolute;
@@ -280,9 +267,40 @@ button {
     100% { transform: scale(0.2); opacity: 0; }
 }
 
-/* =========================
-   SCOPE MASK
-========================= */
+/* RAIN EFFECT */
+
+#rain-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 12;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease;
+}
+
+#rain-layer.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.rain-drop {
+    position: absolute;
+    top: -45px;
+    width: 1px;
+    height: 28px;
+    background: linear-gradient(to bottom, transparent, rgba(110, 220, 255, 0.85));
+    box-shadow: 0 0 3px rgba(80, 190, 255, 0.35);
+    animation: rain-fall var(--rain-duration) linear forwards;
+}
+
+@keyframes rain-fall {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-35px, 500px, 0); }
+}
+
+/* SCOPE MASK */
 
 .scope-mask {
     position: absolute;
@@ -293,9 +311,7 @@ button {
                 transparent 207px, rgba(0, 0, 0, 0.98) 212px);
 }
 
-/* =========================
-   HUD
-========================= */
+/* HUD */
 
 .hud {
     position: absolute;
@@ -336,16 +352,81 @@ button {
     text-shadow: 0 0 8px rgba(255, 0, 55, 0.6);
 }
 
-/* =========================
-   RETICLE
-========================= */
+/* MISSION PROGRESS */
+
+#progress-panel {
+    position: absolute;
+    top: 76px;
+    left: 15px;
+    width: 230px;
+    pointer-events: none;
+}
+
+#progress-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    color: #8bcaca;
+    font-size: 10px;
+    letter-spacing: 1px;
+}
+
+#progress-track {
+    width: 100%;
+    height: 9px;
+    overflow: hidden;
+    border: 1px solid #087d83;
+    background: rgba(0, 20, 24, 0.9);
+}
+
+#progress-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #00a6b8, #00ffff);
+    box-shadow: 0 0 8px #00ffff;
+    transition: width 0.25s ease-out;
+}
+
+#finishing-boost {
+    margin-top: 7px;
+    color: #ffdc68;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+#finishing-boost.active {
+    opacity: 1;
+    transform: translateY(0);
+    animation: boost-pulse 0.7s ease-in-out infinite alternate;
+}
+
+@keyframes boost-pulse {
+    from { text-shadow: 0 0 3px #ffdc68; }
+    to { text-shadow: 0 0 12px #ff9d00; }
+}
+
+#progress-panel.final-boost #progress-fill {
+    background: linear-gradient(90deg, #ff8c00, #ffdc68);
+    box-shadow: 0 0 12px #ffb300;
+}
+
+#progress-panel.complete #progress-fill {
+    background: #7dff9b;
+    box-shadow: 0 0 16px #7dff9b;
+}
+
+/* RETICLE */
 
 #crosshair {
     position: absolute;
     left: 400px;
     top: 250px;
-    width: 70px;
-    height: 70px;
+    width: 55px;
+    height: 55px;
     transform: translate(-50%, -50%);
     z-index: 40;
     pointer-events: none;
@@ -391,9 +472,7 @@ button {
     box-shadow: 0 0 7px #ff173d;
 }
 
-/* =========================
-   BLOOD PARTICLES
-========================= */
+/* BLOOD PARTICLES */
 
 .blood-particle {
     position: absolute;
@@ -415,9 +494,7 @@ button {
     }
 }
 
-/* =========================
-   FLOATING SCORE
-========================= */
+/* FLOATING SCORE */
 
 .points-popup {
     position: absolute;
@@ -435,9 +512,7 @@ button {
     100% { opacity: 0; transform: translateY(-35px) scale(1.3); }
 }
 
-/* =========================
-   JUMPSCARE
-========================= */
+/* JUMPSCARE */
 
 #jumpscare-alien {
     display: none;
@@ -465,9 +540,7 @@ button {
     }
 }
 
-/* =========================
-   GAME OVER
-========================= */
+/* GAME OVER */
 
 #game-over {
     display: none;
@@ -550,9 +623,7 @@ button {
     box-shadow: 0 0 20px rgba(255, 0, 45, 0.6);
 }
 
-/* =========================
-   LEVEL PASSED
-========================= */
+/* LEVEL PASSED */
 
 #level-passed {
     position: absolute;
@@ -597,9 +668,7 @@ button {
     background: #00ffff;
 }
 
-/* =========================
-   FOOTER
-========================= */
+/* FOOTER */
 
 .game-footer {
     display: flex;
@@ -612,14 +681,16 @@ button {
     letter-spacing: 1px;
 }
 
-/* =========================
-   RESPONSIVE
-========================= */
+/* RESPONSIVE */
 
 @media (max-width: 600px) {
-    body { padding: 10px; }
+    body {
+        padding: 10px;
+    }
 
-    #game-area { height: min(500px, 75vh); }
+    #game-area {
+        height: min(500px, 75vh);
+    }
 
     #scope-view {
         width: min(420px, 90vw, 70vh);
@@ -631,13 +702,20 @@ button {
                     transparent 207px, rgba(0, 0, 0, 0.98) 212px);
     }
 
-    #score { font-size: 16px; }
-    #misses { font-size: 12px; }
+    #score {
+        font-size: 16px;
+    }
+
+    #misses {
+        font-size: 12px;
+    }
 
     #lives {
         font-size: 14px;
         letter-spacing: 0;
     }
 
-    .game-footer { font-size: 8px; }
+    .game-footer {
+        font-size: 8px;
+    }
 }
