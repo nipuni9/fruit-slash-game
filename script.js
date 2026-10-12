@@ -7,7 +7,6 @@ const scoreDisplay = document.getElementById("score");
 const missesDisplay = document.getElementById("misses");
 const livesDisplay = document.getElementById("lives");
 const gameOverScreen = document.getElementById("game-over");
-const restartButton = document.getElementById("restart-button");
 const gameArea = document.getElementById("game-area");
 const scopeView = document.getElementById("scope-view");
 const crosshair = document.getElementById("crosshair");
@@ -49,7 +48,7 @@ let shadowElements = [];
 let shadowSpawnCount = 0;
 
 let doubleBladeUnlocked = false;
-let doubleBladeUsed = false;
+let doubleBladeUses = 0; // Updated to allow 3 uses
 
 /* =========================================
    SOUND EFFECTS
@@ -87,14 +86,20 @@ function playWaveSound() { playTone(400, 50, 0.5, "square"); }
 ========================================= */
 function getTargetScore() {
     if (currentLevel === 1) return 100;
-    if (currentLevel === 2) return 150;
-    return 200;
+    if (currentLevel === 2) return 101;
+    return 111; // Level 3 kill requirement
 }
 
 function updateHUD() {
     scoreDisplay.textContent = `Score: ${score}`;
-    missesDisplay.textContent = currentLevel === 1 ? `Misses: ${misses}` : `Time: ${levelTimeLeft}s | Misses: ${misses}`;
-    livesDisplay.textContent = "Lives: " + "❤️".repeat(Math.max(0, lives));
+    
+    if (currentLevel === 3) {
+        missesDisplay.textContent = `Kills needed: ${getTargetScore() - score}`;
+        livesDisplay.textContent = "Lives: ∞"; // Infinite lives in L3
+    } else {
+        missesDisplay.textContent = currentLevel === 1 ? `Misses: ${misses}` : `Time: ${levelTimeLeft}s | Misses: ${misses}`;
+        livesDisplay.textContent = "Lives: " + "❤️".repeat(Math.max(0, lives));
+    }
     
     const target = getTargetScore();
     const percentage = Math.min(100, (score / target) * 100);
@@ -111,23 +116,19 @@ function updateHUD() {
         if (!doubleBladeUnlocked) {
             weaponIndicator.textContent = "DOUBLE BLADE: LOCKED";
             weaponIndicator.classList.remove("weapon-ready");
-        } else if (doubleBladeUsed) {
-            weaponIndicator.textContent = "DOUBLE BLADE: USED";
+        } else if (doubleBladeUses <= 0) {
+            weaponIndicator.textContent = "DOUBLE BLADE: EMPTY";
             weaponIndicator.classList.remove("weapon-ready");
         } else {
-            weaponIndicator.textContent = "SPACE: DOUBLE BLADE READY";
+            weaponIndicator.textContent = `SPACE: DOUBLE BLADE (${doubleBladeUses})`;
             weaponIndicator.classList.add("weapon-ready");
         }
     }
     
-    if (score >= 80 && score < target && currentLevel === 1) {
+    if (score >= target * 0.8 && score < target) {
         progressPanel.classList.add("final-boost");
         finishingBoost.classList.add("active");
-        finishingBoost.textContent = score >= 90 ? "⚡ CRITICAL — ALMOST THERE!" : "⚡ FINAL STRETCH";
-    } else if (score >= target * 0.8 && score < target) {
-        progressPanel.classList.add("final-boost");
-        finishingBoost.classList.add("active");
-        finishingBoost.textContent = "⚡ FINAL STRETCH";
+        finishingBoost.textContent = (score >= 90 && currentLevel === 1) ? "⚡ CRITICAL — ALMOST THERE!" : "⚡ FINAL STRETCH";
     } else {
         finishingBoost.classList.remove("active");
         progressPanel.classList.remove("final-boost");
@@ -148,11 +149,11 @@ function resetProgress() {
 }
 
 function loseLife(amount = 1) {
-    if (!gameRunning) return;
+    if (!gameRunning || currentLevel === 3) return; // No lives lost in Level 3
     lives -= amount;
     misses++;
     updateHUD();
-    if (lives <= 0) endGame();
+    if (lives <= 0) endGame("normal");
 }
 
 /* =========================================
@@ -188,7 +189,7 @@ function startAlienMovement() {
         let speed = 5;
         if (currentLevel === 1) speed = Math.min(11, 5 + Math.floor(score / 15));
         else if (currentLevel === 2) speed = Math.min(15, 9 + Math.floor(score / 20));
-        else speed = Math.min(17, 11 + Math.floor(score / 20));
+        else speed = Math.min(18, 12 + Math.floor(score / 20)); // Even faster in L3
         
         aliens.forEach(alien => {
             if (!alien || alien.style.display === "none") return;
@@ -196,10 +197,16 @@ function startAlienMovement() {
             alien.style.top = (top + speed) + "px";
             
             if (top >= scopeView.clientHeight - 30) {
-                loseLife(1);
+                if (currentLevel !== 3) {
+                    loseLife(1); // Only lose hearts in L1 and L2
+                }
                 if (gameRunning) resetAlien(alien);
             }
         });
+        
+        // Auto-shoot check for stationary mouse while aliens fall
+        checkAutoShoot();
+        
     }, 50);
 }
 
@@ -316,13 +323,13 @@ function scheduleRain() {
             rainLayer.innerHTML = "";
             scopeView.querySelectorAll(".scope-water-drop").forEach(d => d.remove());
             rainTimers.push(setTimeout(triggerRain, 5000));
-        }, 12000)); // Lasts 12 seconds
+        }, 12000));
     };
     rainTimers.push(setTimeout(triggerRain, 2000));
 }
 
 /* =========================================
-   LEVEL PROGRESSION
+   LEVEL PROGRESSION (SOLO LEVELING AR HUD)
 ========================================= */
 function removeMissionPanel() {
     const panel = document.getElementById("level-passed");
@@ -333,17 +340,44 @@ function resetGameVisuals() {
     gameOverScreen.style.display = "none";
     jumpscareAlien.style.display = "none";
     jumpscareAlien.style.animation = "none";
+    jumpscareAlien.textContent = "👽"; // Reset scary face
+}
+
+// Creates the clickable system notification
+function showSystemWindow(htmlContent, buttonSetupCallback) {
+    let panel = document.getElementById("level-passed");
+    if (!panel) {
+        panel = document.createElement("div");
+        panel.id = "level-passed";
+        gameArea.appendChild(panel);
+    }
+    
+    panel.className = "system-notification";
+    panel.innerHTML = `
+        <div class="notif-icon">✉</div>
+        <div class="notif-text">SYSTEM ALERT (CLICK TO OPEN)</div>
+    `;
+    playTone(600, 800, 0.1, "sine");
+    
+    panel.onclick = () => {
+        panel.onclick = null;
+        panel.className = "system-expanded";
+        panel.innerHTML = htmlContent;
+        playTone(200, 300, 0.2, "square");
+        if (buttonSetupCallback) buttonSetupCallback();
+    };
 }
 
 function restartLevel1() {
     removeMissionPanel();
     clearAllTimers();
     if(extraAlien) { extraAlien.remove(); extraAlien = null; }
+    if(window.l3Alien) { window.l3Alien.remove(); window.l3Alien = null; }
     
     currentLevel = 1;
     score = 0; misses = 0; lives = 4;
     gameRunning = true; levelPassed = false;
-    doubleBladeUnlocked = false; doubleBladeUsed = false;
+    doubleBladeUnlocked = false; doubleBladeUses = 0;
     
     aliens = [fruit];
     resetProgress();
@@ -357,10 +391,7 @@ function showLevel1Complete() {
     if (levelPassed) return;
     levelPassed = true; gameRunning = false; clearAllTimers();
     
-    const panel = document.createElement("div");
-    panel.id = "level-passed";
-    panel.className = "mission-clear";
-    panel.innerHTML = `
+    const content = `
         <div class="mission-emblem">✦</div>
         <h2>LEVEL 1 CLEARED!</h2>
         <p class="mission-tag">MISSION COMPLETE</p>
@@ -368,21 +399,25 @@ function showLevel1Complete() {
         <button id="level1-replay">Replay Level 1</button>
         <button id="level2-brief" class="primary-mission">Continue to Level 2 Briefing ➜</button>
     `;
-    gameArea.appendChild(panel);
-    document.getElementById("level1-replay").addEventListener("click", restartLevel1);
-    document.getElementById("level2-brief").addEventListener("click", showLevel2Briefing);
+    
+    showSystemWindow(content, () => {
+        document.getElementById("level1-replay").addEventListener("click", restartLevel1);
+        document.getElementById("level2-brief").addEventListener("click", showLevel2Briefing);
+    });
 }
 
 function showLevel2Briefing() {
-    const panel = document.getElementById("level-passed");
-    panel.innerHTML = `
+    const content = `
         <div class="mission-emblem">⚠</div>
         <h2>LEVEL 2: STORM PROTOCOL</h2>
         <p>Aliens move faster. Two aliens will appear. Rainstorms will temporarily affect visibility.</p>
-        <p>The objective is to reach 150 points in 60 seconds. You have three hearts.</p>
+        <p>The objective is to reach 101 points in 60 seconds. You have three hearts.</p>
         <button id="start-level2" class="primary-mission">Start Level 2 ➜</button>
     `;
-    document.getElementById("start-level2").addEventListener("click", startLevel2);
+    
+    showSystemWindow(content, () => {
+        document.getElementById("start-level2").addEventListener("click", startLevel2);
+    });
 }
 
 function startLevel2() {
@@ -391,6 +426,7 @@ function startLevel2() {
     gameRunning = true; levelPassed = false;
     
     resetProgress(); resetGameVisuals(); resetAlien(fruit);
+    if(window.l3Alien) { window.l3Alien.remove(); window.l3Alien = null; }
     
     if(!extraAlien) extraAlien = createExtraAlien("level2-alien", 280);
     aliens = [fruit, extraAlien];
@@ -402,7 +438,7 @@ function startLevel2() {
         if (!gameRunning) return;
         levelTimeLeft--;
         updateHUD();
-        if (levelTimeLeft <= 0) endGame();
+        if (levelTimeLeft <= 0) endGame("normal");
     }, 1000);
     
     scheduleRain();
@@ -413,23 +449,73 @@ function finishLevel2() {
     levelPassed = true; gameRunning = false; clearAllTimers();
     aliens.forEach(a => { if (a) a.style.display = "none"; });
     
-    doubleBladeUnlocked = true; doubleBladeUsed = false;
+    doubleBladeUnlocked = true; doubleBladeUses = 3; // Give 3 charges for Level 3
     
-    const panel = document.createElement("div");
-    panel.id = "level-passed";
-    panel.className = "mission-clear";
-    panel.innerHTML = `
+    const content = `
         <div class="mission-emblem">⚔️</div>
         <h2>LEVEL 2 CLEARED!</h2>
         <p class="mission-tag">STORM PROTOCOL COMPLETE</p>
         <p>You held the line. The storm couldn't stop you.</p>
-        <p>Double Blade Wave Shot is unlocked for Level 3.</p>
-        <button id="level2-replay">Replay Level 2</button>
-        <button id="level3-start" class="primary-mission">Deploy to Level 3 ➜</button>
+        <button id="level3-brief" class="primary-mission">Continue to Level 3 Briefing ➜</button>
     `;
-    gameArea.appendChild(panel);
-    document.getElementById("level2-replay").addEventListener("click", startLevel2);
-    document.getElementById("level3-start").addEventListener("click", startLevel3);
+    
+    showSystemWindow(content, () => {
+        document.getElementById("level3-brief").addEventListener("click", showLevel3Briefing);
+    });
+}
+
+function showLevel3Briefing() {
+    const content = `
+        <div class="mission-emblem">💀</div>
+        <h2>LEVEL 3: SHADOW PROTOCOL</h2>
+        <p><strong>UNLOCKED:</strong> Press SPACE to unleash the Double Blade Wave Shot <strong>(3 Charges)</strong>!</p>
+        <p>Hearts don't matter anymore. Just survive and kill <strong>111 aliens and monsters</strong>.</p>
+        <p style="color:#ff1744; font-weight:bold; text-shadow:0 0 5px red;">⚠ AVOID THE BLACK BOXES (⬛). THEY ARE INSTANT-DEATH BOMBS.</p>
+        <button id="start-level3" class="primary-mission">Deploy to Final Zone ➜</button>
+    `;
+    
+    showSystemWindow(content, () => {
+        document.getElementById("start-level3").addEventListener("click", startLevel3);
+    });
+}
+
+function spawnBomb() {
+    if (!gameRunning || currentLevel !== 3) return;
+    const bomb = document.createElement("div");
+    bomb.className = "black-box-bomb";
+    bomb.textContent = "⬛";
+    
+    // Check for overlap to prevent unfair deaths
+    let safeLeft = 40 + Math.random() * 320;
+    for(let i=0; i<15; i++) { // Try up to 15 times to find a safe gap
+        safeLeft = 40 + Math.random() * 320;
+        let overlap = false;
+        aliens.forEach(a => {
+            if (a && a.style.display !== "none") {
+                let aLeft = parseFloat(a.style.left) || 0;
+                if (Math.abs(safeLeft - aLeft) < 65) overlap = true; // 65px safe buffer
+            }
+        });
+        if (!overlap) break;
+    }
+
+    bomb.style.left = safeLeft + "px";
+    bomb.style.top = "-20px";
+    scopeView.appendChild(bomb);
+    shadowElements.push(bomb); 
+    
+    // Fall logic for the bomb
+    const dropSpeed = 7 + Math.random() * 4;
+    const dropTimer = setInterval(() => {
+        if(!gameRunning) { clearInterval(dropTimer); return; }
+        const top = parseFloat(bomb.style.top) || -20;
+        bomb.style.top = (top + dropSpeed) + "px";
+        if(top > scopeView.clientHeight) {
+            bomb.remove();
+            clearInterval(dropTimer);
+        }
+    }, 50);
+    shadowTimers.push(dropTimer);
 }
 
 function spawnShadowCreature() {
@@ -442,11 +528,9 @@ function spawnShadowCreature() {
     scopeView.appendChild(shadow);
     shadowElements.push(shadow);
     
-    // 1.35s escape window
     const animTimer = setTimeout(() => {
         if(document.body.contains(shadow)) {
-            loseLife(2); // Escaped shadow costs 2 hearts
-            shadow.remove();
+            shadow.remove(); // No penalty in L3 if missed
         }
     }, 1350);
     
@@ -467,24 +551,28 @@ function spawnShadowCreature() {
 
 function startLevel3() {
     removeMissionPanel(); clearAllTimers();
-    currentLevel = 3; score = 0; misses = 0; lives = 3; shadowSpawnCount = 0;
+    currentLevel = 3; score = 0; misses = 0; lives = 999; shadowSpawnCount = 0;
     gameRunning = true; levelPassed = false;
+    doubleBladeUses = 3; // Reset charges at start of L3
     
     resetProgress(); resetGameVisuals(); resetAlien(fruit);
     if(!extraAlien) extraAlien = createExtraAlien("level2-alien", 280);
-    aliens = [fruit, extraAlien];
+    
+    // Add a 3rd alien for pure chaos in Level 3
+    if(!window.l3Alien) window.l3Alien = createExtraAlien("level3-alien", 150);
+    aliens = [fruit, extraAlien, window.l3Alien];
     
     updateHUD();
     startAlienMovement();
     
-    levelTimer = setInterval(() => {
-        if (!gameRunning) return;
-        levelTimeLeft--;
-        updateHUD();
-        if (levelTimeLeft <= 0) endGame();
-    }, 1000);
+    // Schedule exactly 3 to 5 bombs randomly across the level
+    let bombCount = Math.floor(Math.random() * 3) + 3; // 3, 4, or 5
+    for(let i = 0; i < bombCount; i++) {
+        let delay = 3000 + Math.random() * 45000; // Between 3s and 48s
+        shadowTimers.push(setTimeout(spawnBomb, delay));
+    }
     
-    // Exactly 2 encounters per spec: ~12s and ~34s
+    // Spawn shadows at ~12s and ~34s
     shadowTimers.push(setTimeout(spawnShadowCreature, 12000));
     shadowTimers.push(setTimeout(spawnShadowCreature, 34000));
 }
@@ -493,10 +581,7 @@ function finishLevel3() {
     if (levelPassed) return;
     levelPassed = true; gameRunning = false; clearAllTimers();
     
-    const panel = document.createElement("div");
-    panel.id = "level-passed";
-    panel.className = "mission-clear";
-    panel.innerHTML = `
+    const content = `
         <div class="mission-emblem">🏆</div>
         <h2>CYBERFALL COMPLETE!</h2>
         <p class="mission-tag">ALL THREE MISSIONS CLEARED</p>
@@ -504,42 +589,77 @@ function finishLevel3() {
         <p>Final Score: ${score}</p>
         <button id="level1-restart" class="primary-mission">Restart Game</button>
     `;
-    gameArea.appendChild(panel);
-    document.getElementById("level1-restart").addEventListener("click", restartLevel1);
+    
+    showSystemWindow(content, () => {
+        document.getElementById("level1-restart").addEventListener("click", restartLevel1);
+    });
 }
 
-function endGame() {
+function endGame(reason = "normal") {
     gameRunning = false;
     clearAllTimers();
+    
+    let title = "GAME OVER";
+    let msg = "SNIPER CONNECTION LOST";
+    let scaryFace = "👽";
+
+    if (currentLevel === 3) {
+        title = "YOU WERE MURDERED";
+        msg = reason === "bomb" ? "YOU HIT A BOMB. YOUR BODY WAS VAPORIZED." : "THE MONSTERS TORE YOU APART.";
+        scaryFace = "🧟"; // Horrifying creature face
+    }
+
+    // Completely rebuild the game over screen inner HTML
+    gameOverScreen.innerHTML = `
+        <div class="danger-symbol">☣</div>
+        <div class="system-warning">⚠ SYSTEM FAILURE ⚠</div>
+        <h2>${title}</h2>
+        <div class="game-over-line"></div>
+        <p class="game-over-message">${msg}</p>
+        <div class="game-over-buttons">
+            <button id="restart-button" type="button">ANOTHER CHANCE</button>
+            <button id="quit-button" type="button">QUIT</button>
+        </div>
+    `;
+
     gameOverScreen.style.display = "flex";
+    jumpscareAlien.textContent = scaryFace;
     jumpscareAlien.style.display = "block";
-    jumpscareAlien.style.animation = "alienJumpscare 0.5s ease-out forwards";
+    
+    // Determine which animation to run
+    if (currentLevel === 3) {
+        jumpscareAlien.style.animation = "creatureRun 0.7s cubic-bezier(0.1, 0.7, 0.1, 1) forwards";
+    } else {
+        jumpscareAlien.style.animation = "alienJumpscare 0.5s ease-out forwards";
+    }
+    
     playScareSound();
+    
+    // Bind buttons
+    document.getElementById("restart-button").addEventListener("click", () => {
+        if (currentLevel === 3) startLevel3();
+        else restartLevel1();
+    });
+    
+    document.getElementById("quit-button").addEventListener("click", () => {
+        location.reload(); // Reload tab to quit
+    });
 }
 
 /* =========================================
    CONTROLS & LISTENERS
 ========================================= */
-gameArea.addEventListener("mousemove", (e) => {
-    const rect = gameArea.getBoundingClientRect();
-    mouseX = e.clientX - rect.left;
-    mouseY = e.clientY - rect.top;
-    crosshair.style.left = `${mouseX}px`;
-    crosshair.style.top = `${mouseY}px`;
-});
 
-gameArea.addEventListener("mousedown", (e) => {
-    if (!gameRunning) return;
+// Auto-Shoot Logic for Level 2 & 3
+function checkAutoShoot() {
+    if (!gameRunning || currentLevel < 2) return;
     
-    // Get the bounding box of the entire reticle (55x55 area)
     const crosshairRect = crosshair.getBoundingClientRect();
     
-    // Hit detection for regular aliens
+    // Regular Aliens
     aliens.forEach(alien => {
         if (!alien || alien.style.display === "none") return;
         const rect = alien.getBoundingClientRect();
-        
-        // Check if any edge of the crosshair overlaps with the alien
         if (
             crosshairRect.right >= rect.left &&
             crosshairRect.left <= rect.right &&
@@ -550,29 +670,82 @@ gameArea.addEventListener("mousedown", (e) => {
         }
     });
 
-    // Make the Level 3 shadow creatures equally forgiving
+    // Shadows and Bombs
     shadowElements.forEach(shadow => {
         if (document.body.contains(shadow)) {
             const rect = shadow.getBoundingClientRect();
-            
             if (
                 crosshairRect.right >= rect.left &&
                 crosshairRect.left <= rect.right &&
                 crosshairRect.bottom >= rect.top &&
                 crosshairRect.top <= rect.bottom
             ) {
-                // Trigger the shadow's built-in defeat logic
-                shadow.dispatchEvent(new Event("mousedown"));
+                // If it's a bomb, instantly die!
+                if (shadow.classList.contains("black-box-bomb")) {
+                    endGame("bomb");
+                } else {
+                    shadow.dispatchEvent(new Event("mousedown"));
+                }
+            }
+        }
+    });
+}
+
+gameArea.addEventListener("mousemove", (e) => {
+    const rect = gameArea.getBoundingClientRect();
+    mouseX = e.clientX - rect.left;
+    mouseY = e.clientY - rect.top;
+    crosshair.style.left = `${mouseX}px`;
+    crosshair.style.top = `${mouseY}px`;
+    
+    // Check auto-shoot when mouse moves
+    checkAutoShoot();
+});
+
+gameArea.addEventListener("mousedown", (e) => {
+    if (!gameRunning) return;
+    
+    // Bounding Box Collision for forgiving hit detection
+    const crosshairRect = crosshair.getBoundingClientRect();
+    
+    aliens.forEach(alien => {
+        if (!alien || alien.style.display === "none") return;
+        const rect = alien.getBoundingClientRect();
+        
+        if (
+            crosshairRect.right >= rect.left &&
+            crosshairRect.left <= rect.right &&
+            crosshairRect.bottom >= rect.top &&
+            crosshairRect.top <= rect.bottom
+        ) {
+            scoreHit(alien);
+        }
+    });
+
+    shadowElements.forEach(shadow => {
+        if (document.body.contains(shadow)) {
+            const rect = shadow.getBoundingClientRect();
+            if (
+                crosshairRect.right >= rect.left &&
+                crosshairRect.left <= rect.right &&
+                crosshairRect.bottom >= rect.top &&
+                crosshairRect.top <= rect.bottom
+            ) {
+                if (shadow.classList.contains("black-box-bomb")) {
+                    endGame("bomb");
+                } else {
+                    shadow.dispatchEvent(new Event("mousedown"));
+                }
             }
         }
     });
 });
 
 window.addEventListener("keydown", (e) => {
-    // Double Blade Wave Shot activation
-    if (e.code === "Space" && gameRunning && doubleBladeUnlocked && !doubleBladeUsed && currentLevel === 3) {
+    // Double Blade Wave Shot activation (Requires Uses > 0)
+    if (e.code === "Space" && gameRunning && doubleBladeUnlocked && doubleBladeUses > 0 && currentLevel === 3) {
         e.preventDefault(); // Prevent page scrolling
-        doubleBladeUsed = true;
+        doubleBladeUses--;
         
         const flash = document.createElement("div");
         flash.className = "wave-flash";
@@ -597,7 +770,7 @@ window.addEventListener("keydown", (e) => {
             }
         });
         
-        // Clear shadow creatures silently (no points, no penalty)
+        // Clear shadow creatures AND bombs silently (no points, no penalty, perfectly safe)
         shadowElements.forEach(s => {
             if(document.body.contains(s)) s.remove();
         });
@@ -608,8 +781,6 @@ window.addEventListener("keydown", (e) => {
         e.preventDefault(); // Catch spacebar indiscriminately so they don't scroll while playing
     }
 });
-
-restartButton.addEventListener("click", restartLevel1);
 
 // Initialize Game
 updateHUD();
