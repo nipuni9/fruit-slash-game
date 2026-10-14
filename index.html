@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- © 2026 Yuki9/Studio. All Rights Reserved. Do not distribute or copy without permission. -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cyberfall | Sniper Protocol</title>
@@ -45,6 +46,12 @@
 
             <div class="scope-mask" aria-hidden="true"></div>
 
+            <!-- New Pause Screen -->
+            <div id="pause-screen">
+                <h2>PAUSED</h2>
+                <p>PRESS P OR ESC TO RESUME</p>
+            </div>
+
             <div class="hud">
                 <div id="score">Score: 0</div>
 
@@ -78,14 +85,7 @@
             </div>
 
             <div id="game-over">
-                <div class="danger-symbol">☣</div>
-                <div class="system-warning">⚠ SYSTEM FAILURE ⚠</div>
-                <h2>GAME OVER</h2>
-                <div class="game-over-line"></div>
-                <p class="game-over-message">SNIPER CONNECTION LOST</p>
-                <div class="game-over-buttons">
-                    <button id="restart-button" type="button">RESTART</button>
-                </div>
+                <!-- Content is injected by JS after the jumpscare -->
             </div>
         </section>
 
