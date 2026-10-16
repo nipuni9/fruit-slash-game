@@ -1,3 +1,4 @@
+/* © 2026 [Yuki9/Studio]. All Rights Reserved. Do not copy or distribute. */
 /* =========================================
    CYBERFALL - COMPLETE GAME SCRIPT
 ========================================= */
